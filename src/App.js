@@ -1,24 +1,148 @@
-import logo from './logo.svg';
-import './App.css';
+import { Button, Spinner } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useEffect, useState } from "react";
+import { Col, Container, Row } from "react-bootstrap";
+import styled from "styled-components";
+import "./App.css";
+import NewTransactionModal from "./NewTransactionModal";
+import { fetchLatestPrice } from "./utils";
+
+const LargeText = styled.div`
+  font-size: x-large;
+  word-wrap: nowrap;
+  white-space: nowrap;
+`;
+
+const StatsValue = styled(LargeText)`
+  color: ${(props) => (props.value > 0 ? "#03cea4" : "#eb5e28")};
+`;
 
 function App() {
+  const [transactions, setTransactions] = useState(() => {
+    const local = window.localStorage.getItem("transactions");
+    return local
+      ? JSON.parse(local)
+      : [{ price: 180.85, boughtAt: 44687.113, fee: 0.18 }];
+  });
+  const [loading, setLoading] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState(0);
+  const [avgPrice, setAvgPrice] = useState(0);
+  const [change, setChange] = useState(0);
+  const hodl = transactions.reduce(
+    (p, c) => p + (c.price - c.fee) / c.boughtAt,
+    0
+  );
+
+  async function fetchPrice() {
+    setLoading(true);
+    const priceResponse = await fetchLatestPrice();
+    setLoading(false);
+    setCurrentPrice(parseFloat(priceResponse.price));
+  }
+
+  useEffect(() => {
+    fetchPrice();
+    setAvgPrice(
+      transactions.reduce((p, c) => p + c.boughtAt, 0) / transactions.length
+    );
+
+    window.localStorage.setItem("transactions", JSON.stringify(transactions));
+  }, [transactions]);
+
+  useEffect(() => {
+    const currentChange = (currentPrice * 100) / avgPrice - 100;
+    setChange(currentChange || 0);
+  }, [currentPrice, avgPrice]);
+
+  function addNewTransaction(transaction) {
+    setTransactions([...transactions, { ...transaction, fee: 0 }]);
+  }
+
+  function deleteTransaction(index) {
+    const copy = [...transactions];
+    copy.splice(index, 1);
+    setTransactions(copy);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container className="mt-3">
+      <Row>
+        <Col className="d-flex justify-content-between align-items-center">
+          <h1 className="header">Cryptocurrency tracker</h1>
+          <Button onClick={fetchPrice} variant="outline-primary">
+            Fetch
+          </Button>
+        </Col>
+      </Row>
+      <Row className="mt-3 justify-content-between">
+        <Col className="p-3">
+          <div>Current price</div>
+          {loading ? (
+            <Spinner animation="border" variant="primary" />
+          ) : (
+            <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
+          )}
+        </Col>
+        <Col className="p-3">
+          <div>Avg price</div>
+          <LargeText>{avgPrice.toLocaleString()} EUR</LargeText>
+        </Col>
+        <Col className="p-3">
+          <div>HODL</div>
+          <LargeText>{hodl} BTC</LargeText>
+        </Col>
+        <Col className="p-3">
+          <div>Change</div>
+          <StatsValue value={change}>{change} %</StatsValue>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          {transactions.map((t, i) => (
+            <div
+              key={i}
+              className="mt-1 border-bottom w-100 rounded my-3 d-flex justify-content-between align-items-center"
+            >
+              <LargeText>{t.price.toLocaleString()} EUR</LargeText>
+              <div>
+                <div className="text-right d-flex justify-content-center align-items-center">
+                  Bought at
+                  <br />
+                  {t.boughtAt.toLocaleString()} EUR
+                  {isEdit && (
+                    <div className="ml-3">
+                      <Button
+                        variant="outline-danger"
+                        size="sm"
+                        onClick={() => deleteTransaction(i)}
+                      >
+                        USUŃ
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </Col>
+      </Row>
+      <Row className="mt-3">
+        <Col>
+          <NewTransactionModal submit={addNewTransaction} />{" "}
+          <Button
+            variant="outline-primary"
+            onClick={() => setIsEdit((e) => !e)}
+          >
+            Edit
+          </Button>
+        </Col>
+        <Col className="text-right">
+          Now total
+          <StatsValue value={change}>{currentPrice * hodl} EUR</StatsValue>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
