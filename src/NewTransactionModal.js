@@ -12,15 +12,20 @@ function NewTransactionModal({ submit }) {
   function handleSubmit(event) {
     event.preventDefault();
     submit({
-      price,
-      boughtAt,
+      price: parseFloat(price),
+      boughtAt: parseFloat(boughtAt),
     });
     setShow(false);
   }
 
   return (
     <>
-      <Button variant="primary" onClick={handleShow}>
+      <Button
+        variant="primary"
+        onClick={handleShow}
+        size="sm"
+        style={{ whiteSpace: "nowrap" }}
+      >
         Add new transaction
       </Button>
 
@@ -49,9 +54,11 @@ function NewTransactionModal({ submit }) {
                 onChange={(e) => setBoughtAt(e.target.value)}
               />
             </Form.Group>
-            <Button variant="primary" type="submit">
-              Add
-            </Button>
+            <div className="text-right">
+              <Button variant="primary" type="submit" size="sm">
+                Add
+              </Button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>

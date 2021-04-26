@@ -22,7 +22,7 @@ function App() {
     const local = window.localStorage.getItem("transactions");
     return local
       ? JSON.parse(local)
-      : [{ price: 180.85, boughtAt: 44687.113, fee: 0.18 }];
+      : [{ price: 180.85, boughtAt: 44687.113, fee: 0 }];
   });
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -69,14 +69,14 @@ function App() {
     <Container className="mt-3">
       <Row>
         <Col className="d-flex justify-content-between align-items-center">
-          <h1 className="header">Cryptocurrency tracker</h1>
-          <Button onClick={fetchPrice} variant="outline-primary">
+          <h1 className="header">tracker</h1>
+          <Button onClick={fetchPrice} variant="outline-primary" size="sm">
             Fetch
           </Button>
         </Col>
       </Row>
       <Row className="mt-3 justify-content-between">
-        <Col className="p-3">
+        <Col className="p-3 p-md-3">
           <div>Current price</div>
           {loading ? (
             <Spinner animation="border" variant="primary" />
@@ -84,15 +84,15 @@ function App() {
             <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
           )}
         </Col>
-        <Col className="p-3">
+        <Col className="p-3 p-md-3">
           <div>Avg price</div>
           <LargeText>{avgPrice.toLocaleString()} EUR</LargeText>
         </Col>
-        <Col className="p-3">
+        <Col className="p-3 p-md-3">
           <div>HODL</div>
           <LargeText>{hodl} BTC</LargeText>
         </Col>
-        <Col className="p-3">
+        <Col className="p-3 p-md-3">
           <div>Change</div>
           <StatsValue value={change}>{change} %</StatsValue>
         </Col>
@@ -102,7 +102,7 @@ function App() {
           {transactions.map((t, i) => (
             <div
               key={i}
-              className="mt-1 border-bottom w-100 rounded my-3 d-flex justify-content-between align-items-center"
+              className="mt-2 border-bottom d-flex justify-content-between align-items-center"
             >
               <LargeText>{t.price.toLocaleString()} EUR</LargeText>
               <div>
@@ -117,7 +117,7 @@ function App() {
                         size="sm"
                         onClick={() => deleteTransaction(i)}
                       >
-                        USUŃ
+                        Usuń
                       </Button>
                     </div>
                   )}
@@ -131,7 +131,9 @@ function App() {
         <Col>
           <NewTransactionModal submit={addNewTransaction} />{" "}
           <Button
+            size="sm"
             variant="outline-primary"
+            className="mt-2 mt-md-0"
             onClick={() => setIsEdit((e) => !e)}
           >
             Edit
@@ -139,7 +141,9 @@ function App() {
         </Col>
         <Col className="text-right">
           Now total
-          <StatsValue value={change}>{currentPrice * hodl} EUR</StatsValue>
+          <StatsValue value={change}>
+            {(currentPrice * hodl).toLocaleString()} EUR
+          </StatsValue>
         </Col>
       </Row>
     </Container>
