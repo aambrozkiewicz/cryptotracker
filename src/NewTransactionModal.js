@@ -34,6 +34,7 @@ function NewTransactionModal({ submit }) {
               <Form.Label>Amount spent</Form.Label>
               <Form.Control
                 type="number"
+                step="any"
                 onChange={(e) => setPrice(e.target.value)}
               />
               <Form.Text className="text-muted">
@@ -44,6 +45,7 @@ function NewTransactionModal({ submit }) {
               <Form.Label>Bought at</Form.Label>
               <Form.Control
                 type="number"
+                step="any"
                 onChange={(e) => setBoughtAt(e.target.value)}
               />
             </Form.Group>
