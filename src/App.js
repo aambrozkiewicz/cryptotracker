@@ -104,7 +104,7 @@ function App() {
           {transactions.map((t, i) => (
             <div
               key={i}
-              className="mt-1 shadow rounded p-3 d-flex justify-content-between align-items-center"
+              className="mt-1 bg-white shadow rounded p-3 d-flex justify-content-between align-items-center"
             >
               <LargeText>{t.price.toLocaleString()} EUR</LargeText>
               <div>
