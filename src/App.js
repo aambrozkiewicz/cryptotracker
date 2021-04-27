@@ -33,7 +33,7 @@ function App() {
     (p, c) => p + (c.price - c.fee) / c.boughtAt,
     0
   );
-  const totalSpent = transactions.reduce((p, c) => c.price, transactions);
+  const totalSpent = transactions.reduce((p, c) => p + c.price, 0);
   const total = currentPrice * hodl;
 
   async function fetchPrice() {
@@ -71,9 +71,9 @@ function App() {
     <Container className="mt-3">
       <Row>
         <Col className="d-flex justify-content-between align-items-center">
-          <h1 className="header">tracker</h1>
+          <h1 className="header m-0">Portfolio</h1>
           <Button onClick={fetchPrice} variant="outline-primary" size="sm">
-            Fetch
+            Latest price
           </Button>
         </Col>
       </Row>
