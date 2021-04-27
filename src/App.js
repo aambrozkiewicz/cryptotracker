@@ -78,7 +78,7 @@ function App() {
         </Col>
       </Row>
       <Row className="mt-3 justify-content-between">
-        <Col sm={12} md="auto" className="p-3 p-md-3">
+        <Col sm={12} md={3} className="p-3 p-md-3">
           <div>Current price</div>
           {loading ? (
             <Spinner animation="border" variant="primary" />
@@ -86,17 +86,17 @@ function App() {
             <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
           )}
         </Col>
-        <Col className="p-3 p-md-3">
+        <Col sm={12} md={3} className="p-3 p-md-3">
           <div>Avg price</div>
           <LargeText>{avgPrice.toLocaleString()} EUR</LargeText>
         </Col>
-        <Col className="p-3 p-md-3">
+        <Col sm={12} md={3} className="p-3 p-md-3">
           <div>HODL</div>
           <LargeText>{hodl} BTC</LargeText>
         </Col>
-        <Col className="p-3 p-md-3">
+        <Col sm={12} md={3} className="p-3 p-md-3 text-left text-md-right">
           <div>Change</div>
-          <StatsValue value={change}>{change} %</StatsValue>
+          <StatsValue value={change}>{change.toFixed(2)} %</StatsValue>
         </Col>
       </Row>
       <Row>
@@ -104,7 +104,7 @@ function App() {
           {transactions.map((t, i) => (
             <div
               key={i}
-              className="mt-2 border-bottom d-flex justify-content-between align-items-center"
+              className="mt-1 shadow rounded p-3 d-flex justify-content-between align-items-center"
             >
               <LargeText>{t.price.toLocaleString()} EUR</LargeText>
               <div>
