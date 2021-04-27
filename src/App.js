@@ -33,6 +33,8 @@ function App() {
     (p, c) => p + (c.price - c.fee) / c.boughtAt,
     0
   );
+  const totalSpent = transactions.reduce((p, c) => c.price, transactions);
+  const total = currentPrice * hodl;
 
   async function fetchPrice() {
     setLoading(true);
@@ -76,7 +78,7 @@ function App() {
         </Col>
       </Row>
       <Row className="mt-3 justify-content-between">
-        <Col className="p-3 p-md-3">
+        <Col sm={12} className="p-3 p-md-3">
           <div>Current price</div>
           {loading ? (
             <Spinner animation="border" variant="primary" />
@@ -133,7 +135,6 @@ function App() {
           <Button
             size="sm"
             variant="outline-primary"
-            className="mt-2 mt-md-0"
             onClick={() => setIsEdit((e) => !e)}
           >
             Edit
@@ -142,7 +143,8 @@ function App() {
         <Col className="text-right">
           Now total
           <StatsValue value={change}>
-            {(currentPrice * hodl).toLocaleString()} EUR
+            {total.toLocaleString()} EUR /{" "}
+            {(total - totalSpent).toLocaleString()} EUR
           </StatsValue>
         </Col>
       </Row>
