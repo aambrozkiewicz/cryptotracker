@@ -117,7 +117,7 @@ function App() {
                         size="sm"
                         onClick={() => deleteTransaction(i)}
                       >
-                        Usuń
+                        Delete
                       </Button>
                     </div>
                   )}
