@@ -78,7 +78,7 @@ function App() {
         </Col>
       </Row>
       <Row className="mt-3 justify-content-between">
-        <Col sm={12} className="p-3 p-md-3">
+        <Col sm={12} md="auto" className="p-3 p-md-3">
           <div>Current price</div>
           {loading ? (
             <Spinner animation="border" variant="primary" />
