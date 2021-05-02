@@ -5,13 +5,16 @@ function NewTransactionModal({ submit }) {
   const [show, setShow] = useState(false);
   const [price, setPrice] = useState(0);
   const [boughtAt, setBoughtAt] = useState(0);
+  const [pair, setPair] = useState("BTCEUR");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   function handleSubmit(event) {
     event.preventDefault();
+
     submit({
+      pair,
       price: parseFloat(price),
       boughtAt: parseFloat(boughtAt),
     });
@@ -21,7 +24,7 @@ function NewTransactionModal({ submit }) {
   return (
     <>
       <Button
-        variant="primary"
+        variant="outline-primary"
         onClick={handleShow}
         size="sm"
         style={{ whiteSpace: "nowrap" }}
@@ -35,6 +38,17 @@ function NewTransactionModal({ submit }) {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="formExchangePair">
+              <Form.Label>Exhange pair</Form.Label>
+              <Form.Control
+                as="select"
+                onChange={(e) => setPair(e.target.value)}
+                value={pair}
+              >
+                <option value={"BTCEUR"}>BTCEUR</option>
+                <option value={"ETHEUR"}>ETHEUR</option>
+              </Form.Control>
+            </Form.Group>
             <Form.Group controlId="formAmountSpent">
               <Form.Label>Amount spent</Form.Label>
               <Form.Control

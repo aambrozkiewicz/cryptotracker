@@ -1,154 +1,142 @@
-import { Button, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
-import { Col, Container, Row } from "react-bootstrap";
-import styled from "styled-components";
+import { Button, Col, Container, Row } from "react-bootstrap";
 import "./App.css";
+import CoinPair from "./CoinPair";
 import NewTransactionModal from "./NewTransactionModal";
+import { StatsValue } from "./styles";
 import { fetchLatestPrice } from "./utils";
-
-const LargeText = styled.div`
-  font-size: x-large;
-  word-wrap: nowrap;
-  white-space: nowrap;
-`;
-
-const StatsValue = styled(LargeText)`
-  color: ${(props) => (props.value > 0 ? "#03cea4" : "#eb5e28")};
-`;
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
     const local = window.localStorage.getItem("transactions");
     return local
       ? JSON.parse(local)
-      : [{ price: 180.85, boughtAt: 44687.113, fee: 0 }];
+      : [
+          {
+            id: new Date().valueOf(),
+            pair: "BTCEUR",
+            price: 180.85,
+            boughtAt: 44687.113,
+          },
+        ];
   });
+  const [prices, setPrices] = useState({});
+  const [totalSpent, setTotalSpent] = useState(0);
+  const [currentValue, setCurrentValue] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [currentPrice, setCurrentPrice] = useState(0);
-  const [avgPrice, setAvgPrice] = useState(0);
-  const [change, setChange] = useState(0);
-  const hodl = transactions.reduce(
-    (p, c) => p + (c.price - c.fee) / c.boughtAt,
-    0
-  );
-  const totalSpent = transactions.reduce((p, c) => p + c.price, 0);
-  const total = currentPrice * hodl;
 
-  async function fetchPrice() {
+  const totalBalance = currentValue - totalSpent || 0;
+  const totalChange = (currentValue * 100) / totalSpent - 100;
+
+  const transactionsByPair = transactions.reduce((p, c) => {
+    const pairTransactions = p[c.pair] || [];
+    pairTransactions.push(c);
+    p[c.pair] = pairTransactions;
+    return p;
+  }, {});
+
+  async function fetchPrices() {
     setLoading(true);
-    const priceResponse = await fetchLatestPrice();
+    for await (const pair of Object.keys(transactionsByPair)) {
+      const priceResponse = await fetchLatestPrice(pair);
+      setPrices((c) => ({ ...c, [pair]: parseFloat(priceResponse.price) }));
+    }
     setLoading(false);
-    setCurrentPrice(parseFloat(priceResponse.price));
   }
 
   useEffect(() => {
-    fetchPrice();
-    setAvgPrice(
-      transactions.reduce((p, c) => p + c.boughtAt, 0) / transactions.length
-    );
+    fetchPrices();
 
     window.localStorage.setItem("transactions", JSON.stringify(transactions));
-  }, [transactions]);
+  }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    const currentChange = (currentPrice * 100) / avgPrice - 100;
-    setChange(currentChange || 0);
-  }, [currentPrice, avgPrice]);
+    let totalSpent = 0;
+    let value = 0;
+    for (const [pairName, pairTransactions] of Object.entries(
+      transactionsByPair
+    )) {
+      totalSpent += pairTransactions.reduce((p, c) => p + c.price, 0);
+      let hodl = pairTransactions.reduce((p, c) => p + c.price / c.boughtAt, 0);
+      value += prices[pairName] * hodl;
+    }
+
+    setTotalSpent(totalSpent);
+    setCurrentValue(value);
+  }, [transactionsByPair, prices]);
 
   function addNewTransaction(transaction) {
-    setTransactions([...transactions, { ...transaction, fee: 0 }]);
+    setTransactions([
+      ...transactions,
+      { ...transaction, id: new Date().valueOf() },
+    ]);
   }
 
-  function deleteTransaction(index) {
-    const copy = [...transactions];
-    copy.splice(index, 1);
-    setTransactions(copy);
+  function deleteTransaction(id) {
+    setTransactions((t) => t.filter((t) => t.id !== id));
   }
 
   return (
-    <Container className="mt-3">
-      <Row>
-        <Col className="d-flex justify-content-between align-items-center">
-          <h1 className="header m-0">Portfolio</h1>
-          <Button onClick={fetchPrice} variant="outline-primary" size="sm">
-            Latest price
-          </Button>
-        </Col>
-      </Row>
-      <Row className="mt-3 justify-content-between">
-        <Col sm={12} md={3} className="p-3 p-md-3">
-          <div>Current price</div>
-          {loading ? (
-            <Spinner animation="border" variant="primary" />
-          ) : (
-            <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
-          )}
-        </Col>
-        <Col sm={12} md={3} className="p-3 p-md-3">
-          <div>Avg price</div>
-          <LargeText>{avgPrice.toLocaleString()} EUR</LargeText>
-        </Col>
-        <Col sm={12} md={3} className="p-3 p-md-3">
-          <div>HODL</div>
-          <LargeText>{hodl} BTC</LargeText>
-        </Col>
-        <Col sm={12} md={3} className="p-3 p-md-3 text-left text-md-right">
-          <div>Change</div>
-          <StatsValue value={change}>{change.toFixed(2)} %</StatsValue>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          {transactions.map((t, i) => (
-            <div
-              key={i}
-              className="mt-1 bg-white shadow rounded p-3 d-flex justify-content-between align-items-center"
-            >
-              <LargeText>{t.price.toLocaleString()} EUR</LargeText>
-              <div>
-                <div className="text-right d-flex justify-content-center align-items-center">
-                  Bought at
-                  <br />
-                  {t.boughtAt.toLocaleString()} EUR
-                  {isEdit && (
-                    <div className="ml-3">
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => deleteTransaction(i)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  )}
-                </div>
+    <div className="mb-3">
+      <div className="bg-white py-3 border-bottom">
+        <Container>
+          <Row className="align-items-center">
+            <Col>
+              <h1 className="header m-0">Portfolio</h1>
+            </Col>
+            <Col sm={12} lg={true}>
+              <div className="text-left text-md-right mt-3 mt-lg-0">
+                <Button
+                  onClick={fetchPrices}
+                  variant="outline-primary"
+                  size="sm"
+                >
+                  Update prices
+                </Button>{" "}
+                <NewTransactionModal submit={addNewTransaction} />{" "}
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  onClick={() => setIsEdit((e) => !e)}
+                >
+                  Edit
+                </Button>
               </div>
-            </div>
-          ))}
-        </Col>
-      </Row>
-      <Row className="mt-3">
-        <Col>
-          <NewTransactionModal submit={addNewTransaction} />{" "}
-          <Button
-            size="sm"
-            variant="outline-primary"
-            onClick={() => setIsEdit((e) => !e)}
-          >
-            Edit
-          </Button>
-        </Col>
-        <Col className="text-right">
-          Now total
-          <StatsValue value={change}>
-            {total.toLocaleString()} EUR /{" "}
-            {(total - totalSpent).toLocaleString()} EUR
-          </StatsValue>
-        </Col>
-      </Row>
-    </Container>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+
+      <Container>
+        <Row className="my-3">
+          <Col className="text-center">
+            Total balance
+            <StatsValue value={totalBalance}>
+              {currentValue.toLocaleString()} EUR
+            </StatsValue>{" "}
+            {totalBalance > 0 ? "up" : "down"} by{" "}
+            <span style={{ fontSize: "larger" }}>{totalChange.toFixed(2)}</span>{" "}
+            %
+          </Col>
+        </Row>
+
+        {Object.entries(transactionsByPair).map(
+          ([pairName, transactions], i) => (
+            <CoinPair
+              key={i}
+              pairName={pairName}
+              transactions={transactions}
+              currentPrice={prices[pairName] || 0}
+              isEdit={isEdit}
+              loading={loading}
+              deleteTransaction={deleteTransaction}
+            />
+          )
+        )}
+      </Container>
+    </div>
   );
 }
 
