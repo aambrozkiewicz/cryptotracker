@@ -9,7 +9,7 @@ import { fetchLatestPrice } from "./utils";
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
-    const local = window.localStorage.getItem("transactions");
+    const local = window.localStorage.getItem("transactions2");
     return local
       ? JSON.parse(local)
       : [
