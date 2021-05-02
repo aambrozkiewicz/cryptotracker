@@ -11,22 +11,32 @@ function CoinPair({
   deleteTransaction,
 }) {
   const [open, setOpen] = useState(false);
-  const [avgPrice, setAvgPrice] = useState(0);
+  const [avgBuyingPrice, setAvgBuyingPrice] = useState(0);
   const [change, setChange] = useState(0);
-  const hodl = transactions.reduce((p, c) => p + c.price / c.boughtAt, 0);
+
+  const hodl = Math.max(
+    0,
+    transactions.reduce((p, c) => p + c.price / c.boughtAt, 0)
+  );
+
   const totalSpent = transactions.reduce((p, c) => p + c.price, 0);
   const total = currentPrice * hodl;
 
   useEffect(() => {
-    setAvgPrice(
-      transactions.reduce((p, c) => p + c.boughtAt, 0) / transactions.length
+    const boughtTransactions = transactions.filter((t) => t.price > 0);
+
+    setAvgBuyingPrice(
+      boughtTransactions.length
+        ? boughtTransactions.reduce((p, c) => p + c.boughtAt, 0) /
+            boughtTransactions.length
+        : 0
     );
   }, [transactions]);
 
   useEffect(() => {
-    const currentChange = (currentPrice * 100) / avgPrice - 100;
-    setChange(currentChange || 0);
-  }, [currentPrice, avgPrice]);
+    const currentChange = (currentPrice * 100) / avgBuyingPrice - 100;
+    setChange(hodl > 0 ? currentChange || 0 : 0);
+  }, [currentPrice, avgBuyingPrice, hodl]);
 
   return (
     <>
@@ -43,7 +53,10 @@ function CoinPair({
             <Spinner animation="border" variant="primary" className="ml-2" />
           )}
         </Col>
-        <Col className="d-flex align-items-center flex-grow-1">
+        <Col
+          className="d-flex align-items-center"
+          onClick={() => setOpen((open) => !open)}
+        >
           <div
             style={{
               height: "1px",
@@ -54,10 +67,11 @@ function CoinPair({
         </Col>
         <Col className="text-left text-md-right flex-grow-0 text-nowrap">
           <StatsValue className="d-inline-block" value={change}>
-            {(total - totalSpent).toLocaleString()} EUR / {change.toFixed(2)} %
+            {(total > 0 ? total - totalSpent : 0).toLocaleString()} EUR /{" "}
+            {change.toFixed(2)} %
           </StatsValue>
           <Arrow
-            className="ml-3"
+            className="ml-2"
             onClick={() => setOpen((open) => !open)}
             upsidedown={open}
           />
@@ -72,8 +86,8 @@ function CoinPair({
               <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
-              <div className="text-muted">Avg price</div>
-              <LargeText>{avgPrice.toLocaleString()} EUR</LargeText>
+              <div className="text-muted">Avg buying price</div>
+              <LargeText>{avgBuyingPrice.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
               <div className="text-muted">HODL</div>
@@ -93,12 +107,10 @@ function CoinPair({
                   key={i}
                   className="mt-1 bg-white shadow rounded p-3 d-flex justify-content-between align-items-center"
                 >
-                  <LargeText>{t.price.toLocaleString()} EUR</LargeText>
+                  {t.price.toLocaleString()} EUR
                   <div>
                     <div className="text-right d-flex justify-content-center align-items-center">
-                      Bought at
-                      <br />
-                      {t.boughtAt.toLocaleString()} EUR
+                      Rate {t.boughtAt.toLocaleString()} EUR
                       {isEdit && (
                         <div className="ml-3">
                           <Button

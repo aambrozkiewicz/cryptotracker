@@ -7,7 +7,8 @@ export const LargeText = styled.div`
 `;
 
 export const StatsValue = styled(LargeText)`
-  color: ${(props) => (props.value > 0 ? "#03cea4" : "#eb5e28")};
+  color: ${(props) =>
+    props.value > 0 ? "#03cea4" : props.value === 0 ? "#666" : "#eb5e28"};
 `;
 
 export const Arrow = styled.div`

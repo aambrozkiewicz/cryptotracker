@@ -9,7 +9,7 @@ import { fetchLatestPrice } from "./utils";
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
-    const local = window.localStorage.getItem("transactions2");
+    const local = window.localStorage.getItem("transactions");
     return local
       ? JSON.parse(local)
       : [
@@ -58,9 +58,15 @@ function App() {
     for (const [pairName, pairTransactions] of Object.entries(
       transactionsByPair
     )) {
-      totalSpent += pairTransactions.reduce((p, c) => p + c.price, 0);
+      let pairTotalSpent = pairTransactions.reduce((p, c) => p + c.price, 0);
+      if (pairTotalSpent > 0) {
+        totalSpent += pairTotalSpent;
+      }
+
       let hodl = pairTransactions.reduce((p, c) => p + c.price / c.boughtAt, 0);
-      value += (prices[pairName] || 0) * hodl;
+      if (hodl > 0) {
+        value += (prices[pairName] || 0) * hodl;
+      }
     }
 
     setTotalSpent(totalSpent);
@@ -88,13 +94,6 @@ function App() {
             </Col>
             <Col sm={12} lg={true}>
               <div className="text-left text-md-right mt-3 mt-lg-0">
-                <Button
-                  onClick={fetchPrices}
-                  variant="outline-primary"
-                  size="sm"
-                >
-                  Update prices
-                </Button>{" "}
                 <NewTransactionModal submit={addNewTransaction} />{" "}
                 <Button
                   size="sm"
@@ -102,6 +101,13 @@ function App() {
                   onClick={() => setIsEdit((e) => !e)}
                 >
                   Edit
+                </Button>{" "}
+                <Button
+                  onClick={fetchPrices}
+                  variant="outline-primary"
+                  size="sm"
+                >
+                  Update prices
                 </Button>
               </div>
             </Col>
