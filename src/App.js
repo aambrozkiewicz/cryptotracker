@@ -112,8 +112,11 @@ function App() {
       <Container>
         <Row className="my-3">
           <Col className="text-center">
-            Total balance
-            <StatsValue value={totalBalance}>
+            Total balance{" "}
+            <StatsValue
+              value={totalBalance}
+              className="d-block d-lg-inline-block"
+            >
               {currentValue.toLocaleString()} EUR
             </StatsValue>{" "}
             {totalBalance > 0 ? "up" : "down"} by{" "}
