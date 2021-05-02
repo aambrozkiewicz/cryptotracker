@@ -60,7 +60,7 @@ function App() {
     )) {
       totalSpent += pairTransactions.reduce((p, c) => p + c.price, 0);
       let hodl = pairTransactions.reduce((p, c) => p + c.price / c.boughtAt, 0);
-      value += prices[pairName] * hodl;
+      value += (prices[pairName] || 0) * hodl;
     }
 
     setTotalSpent(totalSpent);

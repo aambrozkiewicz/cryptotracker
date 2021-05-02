@@ -47,6 +47,7 @@ function NewTransactionModal({ submit }) {
               >
                 <option value={"BTCEUR"}>BTCEUR</option>
                 <option value={"ETHEUR"}>ETHEUR</option>
+                <option value={"DOGEEUR"}>DOGEEUR</option>
               </Form.Control>
             </Form.Group>
             <Form.Group controlId="formAmountSpent">
