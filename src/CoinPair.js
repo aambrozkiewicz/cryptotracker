@@ -31,7 +31,11 @@ function CoinPair({
   return (
     <>
       <Row className="mt-3">
-        <Col sm={12} lg={true} className="align-items-center d-flex">
+        <Col
+          sm={12}
+          lg={true}
+          className="align-items-center d-flex flex-grow-0"
+        >
           <h3 style={{ whiteSpace: "nowrap" }} className="m-0">
             {pairName}{" "}
           </h3>
@@ -39,7 +43,16 @@ function CoinPair({
             <Spinner animation="border" variant="primary" className="ml-2" />
           )}
         </Col>
-        <Col className="text-left text-md-right">
+        <Col className="d-flex align-items-center flex-grow-1">
+          <div
+            style={{
+              height: "1px",
+              width: "100%",
+              backgroundColor: "#ccc",
+            }}
+          ></div>
+        </Col>
+        <Col className="text-left text-md-right flex-grow-0 text-nowrap">
           <StatsValue className="d-inline-block" value={change}>
             {(total - totalSpent).toLocaleString()} EUR / {change.toFixed(2)} %
           </StatsValue>
