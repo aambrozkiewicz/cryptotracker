@@ -22,6 +22,9 @@ function Coin({
   );
   const totalValue = currentPrice * hodl;
   const profit = Math.max(0, totalValue - totalSpent);
+  const directedTransactions = transactions
+    .filter((t) => t.direction === BUY)
+    .reduce((p, c) => p + c.price, 0);
 
   return (
     <>
@@ -54,12 +57,7 @@ function Coin({
           <StatsValue className="d-inline-block" value={profit}>
             {profit.toLocaleString()} EUR /{" "}
             {totalSpent
-              ? (
-                  (totalValue * 100) /
-                  transactions
-                    .filter((t) => t.direction === BUY)
-                    .reduce((p, c) => p + c.price, 0)
-                ).toFixed(2)
+              ? ((totalValue * 100) / directedTransactions).toFixed(2)
               : 0}{" "}
             %
           </StatsValue>
@@ -84,7 +82,7 @@ function Coin({
             </Col>
             <Col sm={12} md={3} className="text-left text-md-right">
               <div className="text-muted">Total value</div>
-              <StatsValue>{totalValue.toLocaleString()} EUR</StatsValue>
+              <LargeText>{totalValue.toLocaleString()} EUR</LargeText>
             </Col>
           </Row>
           <Row>
@@ -103,7 +101,7 @@ function Coin({
                     <div className="text-right d-flex justify-content-center align-items-center">
                       {(t.price / t.boughtAt).toFixed(5)} /{" "}
                       {t.price.toLocaleString()} EUR @{" "}
-                      {t.boughtAt.toLocaleString()} {t.pair.right}
+                      {t.boughtAt.toLocaleString()}
                       {isEdit && (
                         <div className="ml-3">
                           <Button
