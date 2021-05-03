@@ -2,8 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import "./App.css";
-import CoinPair from "./CoinPair";
-import NewTransactionModal from "./NewTransactionModal";
+import Coin from "./Coin";
+import NewTransactionModal, { BUY, PAIRS } from "./NewTransactionModal";
 import { StatsValue } from "./styles";
 import { fetchLatestPrice } from "./utils";
 
@@ -15,9 +15,10 @@ function App() {
       : [
           {
             id: new Date().valueOf(),
-            pair: "BTCEUR",
+            pair: PAIRS["BTCEUR"],
             price: 180.85,
             boughtAt: 44687.113,
+            direction: BUY,
           },
         ];
   });
@@ -27,13 +28,13 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
 
-  const totalBalance = currentValue - totalSpent || 0;
-  const totalChange = (currentValue * 100) / totalSpent - 100;
+  const totalBalance = currentValue - totalSpent;
+  const totalChange = totalSpent ? (currentValue * 100) / totalSpent - 100 : 0;
 
   const transactionsByPair = transactions.reduce((p, c) => {
-    const pairTransactions = p[c.pair] || [];
+    const pairTransactions = p[c.pair.symbol] || [];
     pairTransactions.push(c);
-    p[c.pair] = pairTransactions;
+    p[c.pair.symbol] = pairTransactions;
     return p;
   }, {});
 
@@ -55,15 +56,22 @@ function App() {
   useEffect(() => {
     let totalSpent = 0;
     let value = 0;
+
     for (const [pairName, pairTransactions] of Object.entries(
       transactionsByPair
     )) {
-      let pairTotalSpent = pairTransactions.reduce((p, c) => p + c.price, 0);
+      let pairTotalSpent = pairTransactions.reduce(
+        (p, c) => p + c.price * c.direction,
+        0
+      );
       if (pairTotalSpent > 0) {
         totalSpent += pairTotalSpent;
       }
 
-      let hodl = pairTransactions.reduce((p, c) => p + c.price / c.boughtAt, 0);
+      let hodl = pairTransactions.reduce(
+        (p, c) => p + (c.price * c.direction) / c.boughtAt,
+        0
+      );
       if (hodl > 0) {
         value += (prices[pairName] || 0) * hodl;
       }
@@ -133,7 +141,7 @@ function App() {
 
         {Object.entries(transactionsByPair).map(
           ([pairName, transactions], i) => (
-            <CoinPair
+            <Coin
               key={i}
               pairName={pairName}
               transactions={transactions}

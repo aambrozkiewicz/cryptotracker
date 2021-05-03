@@ -1,11 +1,29 @@
-import { Button, Form, Modal } from "react-bootstrap";
 import { useState } from "react";
+import { Button, Col, Form, Modal } from "react-bootstrap";
+import RadioGroup from "./RadioGroup";
+
+export const PAIRS = {
+  BTCEUR: {
+    symbol: "BTCEUR",
+    left: "BTC",
+    right: "EUR",
+  },
+  ETHEUR: {
+    symbol: "ETHEUR",
+    left: "ETH",
+    right: "EUR",
+  },
+};
+
+export const SELL = -1;
+export const BUY = 1;
 
 function NewTransactionModal({ submit }) {
   const [show, setShow] = useState(false);
   const [price, setPrice] = useState(0);
   const [boughtAt, setBoughtAt] = useState(0);
-  const [pair, setPair] = useState("BTCEUR");
+  const [pair, setPair] = useState(PAIRS["BTCEUR"]);
+  const [direction, setDirection] = useState("Buy");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -17,6 +35,7 @@ function NewTransactionModal({ submit }) {
       pair,
       price: parseFloat(price),
       boughtAt: parseFloat(boughtAt),
+      direction: direction === "Sell" ? -1 : 1,
     });
     setShow(false);
   }
@@ -38,20 +57,34 @@ function NewTransactionModal({ submit }) {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="formExchangePair">
-              <Form.Label>Exhange pair</Form.Label>
-              <Form.Control
-                as="select"
-                onChange={(e) => setPair(e.target.value)}
-                value={pair}
+            <Form.Row>
+              <Form.Group
+                as={Col}
+                className="d-flex align-items-center justify-content-center"
               >
-                <option value={"BTCEUR"}>BTCEUR</option>
-                <option value={"ETHEUR"}>ETHEUR</option>
-                <option value={"DOGEEUR"}>DOGEEUR</option>
-              </Form.Control>
-            </Form.Group>
+                <RadioGroup
+                  options={["Buy", "Sell"]}
+                  onChange={(v) => setDirection(v)}
+                  value={direction}
+                />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formExchangePair">
+                <Form.Label>Exhange pair</Form.Label>
+                <Form.Control
+                  as="select"
+                  onChange={(e) => setPair(PAIRS[e.target.value])}
+                  value={pair.symbol}
+                >
+                  {Object.keys(PAIRS).map((pairName, i) => (
+                    <option key={i} value={pairName}>
+                      {pairName}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+            </Form.Row>
             <Form.Group controlId="formAmountSpent">
-              <Form.Label>Amount spent</Form.Label>
+              <Form.Label>{pair.right}</Form.Label>
               <Form.Control
                 type="number"
                 step="any"
@@ -62,7 +95,7 @@ function NewTransactionModal({ submit }) {
               </Form.Text>
             </Form.Group>
             <Form.Group controlId="formBoughtAt">
-              <Form.Label>Bought at</Form.Label>
+              <Form.Label>Exchange rate</Form.Label>
               <Form.Control
                 type="number"
                 step="any"

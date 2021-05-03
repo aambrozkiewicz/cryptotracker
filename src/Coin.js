@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import { Button, Col, Row, Spinner, Collapse } from "react-bootstrap";
+import { useState } from "react";
+import { Button, Col, Collapse, Row, Spinner } from "react-bootstrap";
+import { BUY } from "./NewTransactionModal";
 import { Arrow, LargeText, StatsValue } from "./styles";
 
-function CoinPair({
+function Coin({
   pairName,
   loading,
   transactions,
@@ -11,32 +12,16 @@ function CoinPair({
   deleteTransaction,
 }) {
   const [open, setOpen] = useState(false);
-  const [avgBuyingPrice, setAvgBuyingPrice] = useState(0);
-  const [change, setChange] = useState(0);
-
   const hodl = Math.max(
     0,
-    transactions.reduce((p, c) => p + c.price / c.boughtAt, 0)
+    transactions.reduce((p, c) => p + (c.price * c.direction) / c.boughtAt, 0)
   );
-
-  const totalSpent = transactions.reduce((p, c) => p + c.price, 0);
-  const total = currentPrice * hodl;
-
-  useEffect(() => {
-    const boughtTransactions = transactions.filter((t) => t.price > 0);
-
-    setAvgBuyingPrice(
-      boughtTransactions.length
-        ? boughtTransactions.reduce((p, c) => p + c.boughtAt, 0) /
-            boughtTransactions.length
-        : 0
-    );
-  }, [transactions]);
-
-  useEffect(() => {
-    const currentChange = (currentPrice * 100) / avgBuyingPrice - 100;
-    setChange(hodl > 0 ? currentChange || 0 : 0);
-  }, [currentPrice, avgBuyingPrice, hodl]);
+  const totalSpent = transactions.reduce(
+    (p, c) => p + c.price * c.direction,
+    0
+  );
+  const totalValue = currentPrice * hodl;
+  const profit = Math.max(0, totalValue - totalSpent);
 
   return (
     <>
@@ -66,9 +51,17 @@ function CoinPair({
           ></div>
         </Col>
         <Col className="text-left text-md-right flex-grow-0 text-nowrap">
-          <StatsValue className="d-inline-block" value={change}>
-            {(total > 0 ? total - totalSpent : 0).toLocaleString()} EUR /{" "}
-            {change.toFixed(2)} %
+          <StatsValue className="d-inline-block" value={profit}>
+            {profit.toLocaleString()} EUR /{" "}
+            {totalSpent
+              ? (
+                  (totalValue * 100) /
+                  transactions
+                    .filter((t) => t.direction === BUY)
+                    .reduce((p, c) => p + c.price, 0)
+                ).toFixed(2)
+              : 0}{" "}
+            %
           </StatsValue>
           <Arrow
             className="ml-2"
@@ -86,31 +79,31 @@ function CoinPair({
               <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
-              <div className="text-muted">Avg buying price</div>
-              <LargeText>{avgBuyingPrice.toLocaleString()} EUR</LargeText>
-            </Col>
-            <Col sm={12} md={3} className="">
               <div className="text-muted">HODL</div>
               <LargeText>{hodl}</LargeText>
             </Col>
             <Col sm={12} md={3} className="text-left text-md-right">
               <div className="text-muted">Total value</div>
-              <StatsValue value={change}>
-                {total.toLocaleString()} EUR
-              </StatsValue>
+              <StatsValue>{totalValue.toLocaleString()} EUR</StatsValue>
             </Col>
           </Row>
           <Row>
             <Col>
-              {transactions.map((t, i) => (
-                <div
-                  key={i}
-                  className="mt-1 bg-white shadow rounded p-3 d-flex justify-content-between align-items-center"
-                >
-                  {t.price.toLocaleString()} EUR
-                  <div>
+              <div className="bg-white shadow rounded">
+                {transactions.map((t, i) => (
+                  <div
+                    key={i}
+                    className="mt-1 p-3 d-flex justify-content-between align-items-center border-bottom"
+                  >
+                    {t.direction === -1 ? (
+                      <i className="icono-arrow1-right"></i>
+                    ) : (
+                      <i className="icono-arrow1-left"></i>
+                    )}
                     <div className="text-right d-flex justify-content-center align-items-center">
-                      Rate {t.boughtAt.toLocaleString()} EUR
+                      {(t.price / t.boughtAt).toFixed(5)} /{" "}
+                      {t.price.toLocaleString()} EUR @{" "}
+                      {t.boughtAt.toLocaleString()} {t.pair.right}
                       {isEdit && (
                         <div className="ml-3">
                           <Button
@@ -124,8 +117,8 @@ function CoinPair({
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </Col>
           </Row>
         </div>
@@ -134,4 +127,4 @@ function CoinPair({
   );
 }
 
-export default CoinPair;
+export default Coin;
