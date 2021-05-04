@@ -128,10 +128,11 @@ function App() {
           <Col>
             Investment
             <br />
-            {totalSpent.toLocaleString()} EUR
+            <StatsValue>{totalSpent.toLocaleString()} EUR</StatsValue>
           </Col>
           <Col className="text-right">
-            Total balance{" "}
+            Total balance
+            <br />
             <StatsValue
               value={totalBalance}
               className="d-block d-lg-inline-block"

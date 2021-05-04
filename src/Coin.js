@@ -74,7 +74,7 @@ function Coin({
             </Col>
             <Col sm={12} md={3} className="">
               <div className="text-muted">Investment</div>
-              <LargeText>{totalSpent} EUR</LargeText>
+              <LargeText>{totalSpent.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
               <div className="text-muted">HODL</div>
