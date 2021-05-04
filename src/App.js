@@ -135,7 +135,7 @@ function App() {
               Profit
               <br />
               <StatsValue>
-                {(totalBalance - totalChange).toLocaleString()} EUR
+                {(currentValue - totalSpent).toLocaleString()} EUR
               </StatsValue>
             </div>
           </Col>
