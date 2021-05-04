@@ -128,7 +128,7 @@ function App() {
           <Col>
             Investment
             <br />
-            {totalSpent}
+            {totalSpent.toLocaleString()} EUR
           </Col>
           <Col className="text-right">
             Total balance{" "}
