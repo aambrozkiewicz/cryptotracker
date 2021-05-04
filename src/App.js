@@ -125,7 +125,12 @@ function App() {
 
       <Container>
         <Row className="my-3">
-          <Col className="text-center">
+          <Col>
+            Investment
+            <br />
+            {totalSpent}
+          </Col>
+          <Col className="text-right">
             Total balance{" "}
             <StatsValue
               value={totalBalance}

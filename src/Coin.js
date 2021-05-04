@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button, Col, Collapse, Row, Spinner } from "react-bootstrap";
-import { BUY } from "./NewTransactionModal";
 import { Arrow, LargeText, StatsValue } from "./styles";
 
 function Coin({
@@ -21,10 +20,7 @@ function Coin({
     0
   );
   const totalValue = currentPrice * hodl;
-  const profit = Math.max(0, totalValue - totalSpent);
-  const directedTransactions = transactions
-    .filter((t) => t.direction === BUY)
-    .reduce((p, c) => p + c.price, 0);
+  const profit = totalValue - totalSpent;
 
   return (
     <>
@@ -57,7 +53,7 @@ function Coin({
           <StatsValue className="d-inline-block" value={profit}>
             {profit.toLocaleString()} EUR /{" "}
             {totalSpent
-              ? ((totalValue * 100) / directedTransactions).toFixed(2)
+              ? ((totalValue * 100) / totalSpent - 100).toFixed(2)
               : 0}{" "}
             %
           </StatsValue>
@@ -75,6 +71,10 @@ function Coin({
             <Col sm={12} md={3} className="">
               <div className="text-muted">Current price</div>
               <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
+            </Col>
+            <Col sm={12} md={3} className="">
+              <div className="text-muted">Investment</div>
+              <LargeText>{totalSpent} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
               <div className="text-muted">HODL</div>
