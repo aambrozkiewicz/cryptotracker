@@ -126,10 +126,20 @@ function App() {
       <Container>
         <Row className="my-3">
           <Col>
-            Investment
-            <br />
-            <StatsValue>{totalSpent.toLocaleString()} EUR</StatsValue>
+            <div className="d-inline-block mr-3">
+              Investment
+              <br />
+              <StatsValue>{totalSpent.toLocaleString()} EUR</StatsValue>
+            </div>
+            <div className="d-inline-block">
+              Profit
+              <br />
+              <StatsValue>
+                {(totalBalance - totalChange).toLocaleString()} EUR
+              </StatsValue>
+            </div>
           </Col>
+          <Col></Col>
           <Col className="text-right">
             Total balance
             <br />
