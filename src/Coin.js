@@ -73,12 +73,12 @@ function Coin({
               <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
-              <div className="text-muted">Investment</div>
-              <LargeText>{totalSpent.toLocaleString()} EUR</LargeText>
-            </Col>
-            <Col sm={12} md={3} className="">
               <div className="text-muted">HODL</div>
               <LargeText>{hodl}</LargeText>
+            </Col>
+            <Col sm={12} md={3} className="">
+              <div className="text-muted">Investment</div>
+              <LargeText>{totalSpent.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="text-left text-md-right">
               <div className="text-muted">Total value</div>

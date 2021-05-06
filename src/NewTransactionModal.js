@@ -13,6 +13,11 @@ export const PAIRS = {
     left: "ETH",
     right: "EUR",
   },
+  XLMEUR: {
+    symbol: "XLMEUR",
+    left: "XLM",
+    right: "EUR",
+  },
 };
 
 export const SELL = -1;
@@ -35,7 +40,7 @@ function NewTransactionModal({ submit }) {
       pair,
       price: parseFloat(price),
       boughtAt: parseFloat(boughtAt),
-      direction: direction === "Sell" ? -1 : 1,
+      direction: direction === SELL ? -1 : 1,
     });
     setShow(false);
   }
