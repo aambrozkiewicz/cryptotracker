@@ -37,7 +37,7 @@ function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
             style={{
               height: "1px",
               width: "100%",
-              backgroundColor: "#ccc",
+              backgroundColor: "#dadada",
             }}
           ></div>
         </Col>
@@ -94,7 +94,7 @@ function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
                   </Col>
                   <Col xs={12} lg={3}>
                     <div
-                      className="d-flex justify-content-between align-items-center text-left text-lg-right mt-2 mt-lg-0"
+                      className="d-flex justify-content-between align-items-center text-left text-lg-right my-2 my-lg-0"
                       style={{ minHeight: "25px" }}
                     >
                       <div className="w-100">

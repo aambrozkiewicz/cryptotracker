@@ -180,6 +180,7 @@ function App() {
           </Col>
         </Row>
 
+        <hr />
         {Object.entries(instruments).map(([instrumentName, instrument], i) => (
           <Coin
             key={i}

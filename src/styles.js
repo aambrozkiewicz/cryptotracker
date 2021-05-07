@@ -28,6 +28,6 @@ export const Arrow = styled.div`
   height: 20px;
   transition: all 0.6s;
   transform: rotate(45deg);
-  margin: 5px;
+  margin: 6px;
   ${(props) => props.upsidedown && "transform: rotate(-135deg);"};
 `;
