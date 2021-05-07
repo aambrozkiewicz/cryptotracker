@@ -66,7 +66,8 @@ function App() {
   const [edit, setEdit] = useState(false);
 
   const instruments = instrumentSelector(transactions);
-  const valueChange = (currentValue / totalSpent) * 100 - 100;
+  const valueChange =
+    totalSpent > 0 ? (currentValue / totalSpent) * 100 - 100 : 0;
   const totalTakeProfit = Object.values(instruments).reduce(
     (p, instrument) => p + instrument.totalTakeProfit,
     0

@@ -77,44 +77,35 @@ function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
             {instrument.transactions.map((t, i) => (
               <div className="border-bottom p-2">
                 <Row className="align-items-center">
-                  <Col xs={2} lg={3} className="d-none d-lg-block">
-                    {t.direction === SELL ? (
-                      <i className="icono-arrow1-right"></i>
-                    ) : (
-                      <i className="icono-arrow1-left"></i>
-                    )}
+                  <Col xs={6} lg={3}>
+                    <SmallLabel>Rate</SmallLabel>
+                    {t.rate.toLocaleString()} EUR
                   </Col>
                   <Col xs={6} lg={3}>
                     <SmallLabel>Take profit</SmallLabel>
                     {t.takeProfit}
                   </Col>
-                  <Col xs={6} lg={3} className="text-right text-lg-left">
+                  <Col xs={6} lg={3} className="text-left text-lg-left">
                     <SmallLabel>Date</SmallLabel>
                     {t.date.toLocaleString()}
                   </Col>
                   <Col xs={12} lg={3}>
                     <div
-                      className="d-flex justify-content-between align-items-center text-left text-lg-right my-2 my-lg-0"
+                      className="d-flex justify-content-between align-items-center text-left text-lg-right mt-2 mt-lg-0"
                       style={{ minHeight: "32px" }}
                     >
                       <div className="w-100">
-                        <div className="d-inline-block d-lg-block">
-                          {(t.price / t.rate).toFixed(5)} /{" "}
-                          {t.price.toLocaleString()} EUR
-                        </div>
-                        <div className="d-inline-block d-lg-block ml-1 ml-lg-0">
-                          @ {t.rate.toLocaleString()}
-                        </div>
+                        <div>{(t.price / t.rate).toFixed(5)}</div>
+                        <div>{t.price.toLocaleString()} EUR</div>
                       </div>
                       {edit && (
                         <Button
-                          variant="link"
+                          variant="outline-dark"
                           size="sm"
-                          className="ml-0 ml-lg-2"
+                          className="ml-0 ml-lg-3 mr-lg-2"
                           onClick={() => deleteTransaction(t.id)}
                         >
-                          Remove
-                          {/* <img src={deleteIcon} width="16" /> */}
+                          &#x2715;
                         </Button>
                       )}
                     </div>
