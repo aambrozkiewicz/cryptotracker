@@ -3,21 +3,57 @@ import { useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import "./App.css";
 import Coin from "./Coin";
-import NewTransactionModal, { BUY, PAIRS } from "./NewTransactionModal";
-import { StatsValue } from "./styles";
-import { fetchLatestPrice } from "./utils";
+import NewTransactionModal, { BUY, PAIRS, SELL } from "./NewTransactionModal";
+import { SmallLabel, StatsValue } from "./styles";
+import { fetchLatestPrice, generateId } from "./utils";
+
+// NOTE: transactions are sorted in ASC order
+const instrumentSelector = (transactions) =>
+  transactions.reduce((previous, transaction) => {
+    const instrument = previous[transaction.pair.name] || {
+      transactions: [],
+      totalTakeProfit: 0,
+      totalHodl: 0,
+    };
+
+    transaction.takeProfit = 0;
+    instrument.transactions.push(transaction);
+
+    if (transaction.direction === SELL) {
+      const cost = instrument.transactions
+        .filter((t) => t.direction === BUY)
+        .reduce((p, c) => p + c.price * c.direction, 0);
+      const value = instrument.transactions
+        .filter((t) => t.direction === BUY)
+        .reduce((p, c) => p + c.price / c.rate, 0);
+      const exchangeProfit = value * transaction.rate - cost;
+      const takeProfitValue = transaction.price / transaction.rate;
+      const ratio = takeProfitValue / value;
+      transaction.takeProfit = ratio * exchangeProfit;
+    }
+
+    instrument.name = transaction.pair.name;
+    instrument.totalTakeProfit += transaction.takeProfit;
+    instrument.totalHodl +=
+      (transaction.price / transaction.rate) * transaction.direction;
+    previous[transaction.pair.name] = instrument;
+
+    return previous;
+  }, {});
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
     const local = window.localStorage.getItem("transactions");
+
     return local
       ? JSON.parse(local)
       : [
           {
-            id: new Date().valueOf(),
+            id: generateId(),
             pair: PAIRS["BTCEUR"],
+            date: "2021-05-01T23:59",
             price: 180.85,
-            boughtAt: 44687.113,
+            rate: 44687.113,
             direction: BUY,
           },
         ];
@@ -25,22 +61,20 @@ function App() {
   const [prices, setPrices] = useState({});
   const [totalSpent, setTotalSpent] = useState(0);
   const [currentValue, setCurrentValue] = useState(0);
+  const [profit, setProfit] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
+  const [edit, setEdit] = useState(false);
 
-  const totalBalance = currentValue - totalSpent;
-  const totalChange = totalSpent ? (currentValue * 100) / totalSpent - 100 : 0;
-
-  const transactionsByPair = transactions.reduce((p, c) => {
-    const pairTransactions = p[c.pair.symbol] || [];
-    pairTransactions.push(c);
-    p[c.pair.symbol] = pairTransactions;
-    return p;
-  }, {});
+  const instruments = instrumentSelector(transactions);
+  const valueChange = (currentValue / totalSpent) * 100 - 100;
+  const totalTakeProfit = Object.values(instruments).reduce(
+    (p, instrument) => p + instrument.totalTakeProfit,
+    0
+  );
 
   async function fetchPrices() {
     setLoading(true);
-    for await (const pair of Object.keys(transactionsByPair)) {
+    for await (const pair of Object.keys(instruments)) {
       const priceResponse = await fetchLatestPrice(pair);
       setPrices((c) => ({ ...c, [pair]: parseFloat(priceResponse.price) }));
     }
@@ -55,37 +89,35 @@ function App() {
 
   useEffect(() => {
     let totalSpent = 0;
-    let value = 0;
+    let totalValue = 0;
 
-    for (const [pairName, pairTransactions] of Object.entries(
-      transactionsByPair
-    )) {
-      let pairTotalSpent = pairTransactions.reduce(
+    for (const [
+      instrumentName,
+      { transactions: instrumentTransactions },
+    ] of Object.entries(instruments)) {
+      totalSpent += instrumentTransactions.reduce(
         (p, c) => p + c.price * c.direction,
         0
       );
-      if (pairTotalSpent > 0) {
-        totalSpent += pairTotalSpent;
-      }
 
-      let hodl = pairTransactions.reduce(
-        (p, c) => p + (c.price * c.direction) / c.boughtAt,
+      let hodl = instrumentTransactions.reduce(
+        (p, c) => p + (c.price * c.direction) / c.rate,
         0
       );
-      if (hodl > 0) {
-        value += (prices[pairName] || 0) * hodl;
-      }
+      totalValue += (prices[instrumentName] || 0) * hodl;
     }
 
     setTotalSpent(totalSpent);
-    setCurrentValue(value);
-  }, [transactionsByPair, prices]);
+    setCurrentValue(totalValue);
+    setProfit(currentValue - totalSpent - totalTakeProfit);
+  }, [instruments, prices, totalTakeProfit, currentValue]);
 
   function addNewTransaction(transaction) {
-    setTransactions([
-      ...transactions,
-      { ...transaction, id: new Date().valueOf() },
-    ]);
+    setTransactions(
+      [...transactions, { ...transaction, id: generateId() }].sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+      )
+    );
   }
 
   function deleteTransaction(id) {
@@ -106,7 +138,7 @@ function App() {
                 <Button
                   size="sm"
                   variant="outline-primary"
-                  onClick={() => setIsEdit((e) => !e)}
+                  onClick={() => setEdit((e) => !e)}
                 >
                   Edit
                 </Button>{" "}
@@ -125,49 +157,39 @@ function App() {
 
       <Container>
         <Row className="my-3">
-          <Col>
-            <div className="d-inline-block mr-3">
-              Investment
-              <br />
-              <StatsValue>{totalSpent.toLocaleString()} EUR</StatsValue>
-            </div>
-            <div className="d-inline-block">
-              Profit
-              <br />
-              <StatsValue>
-                {(currentValue - totalSpent).toLocaleString()} EUR
-              </StatsValue>
-            </div>
+          <Col xs={12} lg>
+            <SmallLabel>Acquisition Cost</SmallLabel>
+            <StatsValue>{totalSpent.toLocaleString()} EUR</StatsValue>
           </Col>
-          <Col></Col>
-          <Col className="text-right">
-            Total balance
-            <br />
+          <Col xs={12} lg>
+            <SmallLabel>Profit/Loss</SmallLabel>
+            <StatsValue>{profit.toLocaleString()} EUR</StatsValue>
+          </Col>
+          <Col xs={12} lg>
+            <SmallLabel>Realized profit</SmallLabel>
+            <StatsValue>{totalTakeProfit.toLocaleString()} EUR</StatsValue>
+          </Col>
+          <Col xs={12} lg className="text-left text-lg-right">
+            <SmallLabel>Current Holdings</SmallLabel>
             <StatsValue
-              value={totalBalance}
+              value={valueChange}
               className="d-block d-lg-inline-block"
             >
-              {currentValue.toLocaleString()} EUR
-            </StatsValue>{" "}
-            {totalBalance > 0 ? "up" : "down"} by{" "}
-            <span style={{ fontSize: "larger" }}>{totalChange.toFixed(2)}</span>{" "}
-            %
+              {currentValue.toLocaleString()} EUR {valueChange.toFixed(2)} %
+            </StatsValue>
           </Col>
         </Row>
 
-        {Object.entries(transactionsByPair).map(
-          ([pairName, transactions], i) => (
-            <Coin
-              key={i}
-              pairName={pairName}
-              transactions={transactions}
-              currentPrice={prices[pairName] || 0}
-              isEdit={isEdit}
-              loading={loading}
-              deleteTransaction={deleteTransaction}
-            />
-          )
-        )}
+        {Object.entries(instruments).map(([instrumentName, instrument], i) => (
+          <Coin
+            key={i}
+            instrument={instrument}
+            currentPrice={prices[instrumentName] || 0}
+            edit={edit}
+            loading={loading}
+            deleteTransaction={deleteTransaction}
+          />
+        ))}
       </Container>
     </div>
   );

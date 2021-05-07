@@ -1,26 +1,17 @@
 import { useState } from "react";
 import { Button, Col, Collapse, Row, Spinner } from "react-bootstrap";
-import { Arrow, LargeText, StatsValue } from "./styles";
+import { SELL } from "./NewTransactionModal";
+import { Arrow, LargeText, SmallLabel, StatsValue } from "./styles";
+import deleteIcon from "./img/cancel.svg";
 
-function Coin({
-  pairName,
-  loading,
-  transactions,
-  currentPrice,
-  isEdit,
-  deleteTransaction,
-}) {
+function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
   const [open, setOpen] = useState(false);
-  const hodl = Math.max(
-    0,
-    transactions.reduce((p, c) => p + (c.price * c.direction) / c.boughtAt, 0)
-  );
-  const totalSpent = transactions.reduce(
+  const totalSpent = instrument.transactions.reduce(
     (p, c) => p + c.price * c.direction,
     0
   );
-  const totalValue = currentPrice * hodl;
-  const profit = totalValue - totalSpent;
+  const totalValue = currentPrice * instrument.totalHodl;
+  const profit = totalValue - totalSpent - instrument.totalTakeProfit;
 
   return (
     <>
@@ -30,17 +21,19 @@ function Coin({
           lg={true}
           className="align-items-center d-flex flex-grow-0"
         >
+          <Arrow
+            className="mr-3"
+            onClick={() => setOpen((open) => !open)}
+            upsidedown={open}
+          />
           <h3 style={{ whiteSpace: "nowrap" }} className="m-0">
-            {pairName}{" "}
+            {instrument.name}
           </h3>
           {loading && (
             <Spinner animation="border" variant="primary" className="ml-2" />
           )}
         </Col>
-        <Col
-          className="d-flex align-items-center"
-          onClick={() => setOpen((open) => !open)}
-        >
+        <Col className="d-none d-lg-flex align-items-center">
           <div
             style={{
               height: "1px",
@@ -51,74 +44,85 @@ function Coin({
         </Col>
         <Col className="text-left text-md-right flex-grow-0 text-nowrap">
           <StatsValue className="d-inline-block" value={profit}>
-            {profit.toLocaleString()} EUR /{" "}
+            {profit.toLocaleString()} EUR{" "}
             {totalSpent
               ? ((totalValue * 100) / totalSpent - 100).toFixed(2)
               : 0}{" "}
             %
           </StatsValue>
-          <Arrow
-            className="ml-2"
-            onClick={() => setOpen((open) => !open)}
-            upsidedown={open}
-          />
         </Col>
       </Row>
 
       <Collapse in={open}>
         <div>
-          <Row className="justify-content-between my-2">
+          <Row className="my-2">
             <Col sm={12} md={3} className="">
-              <div className="text-muted">Current price</div>
+              <SmallLabel>Current price</SmallLabel>
               <LargeText>{currentPrice.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
-              <div className="text-muted">HODL</div>
-              <LargeText>{hodl}</LargeText>
-            </Col>
-            <Col sm={12} md={3} className="">
-              <div className="text-muted">Investment</div>
+              <SmallLabel>Acquisition Cost</SmallLabel>
               <LargeText>{totalSpent.toLocaleString()} EUR</LargeText>
             </Col>
+            <Col sm={12} md={3} className="">
+              <SmallLabel>HODL</SmallLabel>
+              <LargeText>{instrument.totalHodl}</LargeText>
+            </Col>
             <Col sm={12} md={3} className="text-left text-md-right">
-              <div className="text-muted">Total value</div>
+              <SmallLabel>Current Holdings</SmallLabel>
               <LargeText>{totalValue.toLocaleString()} EUR</LargeText>
             </Col>
           </Row>
-          <Row>
-            <Col>
-              <div className="bg-white shadow rounded">
-                {transactions.map((t, i) => (
-                  <div
-                    key={i}
-                    className="mt-1 p-3 d-flex justify-content-between align-items-center border-bottom"
-                  >
-                    {t.direction === -1 ? (
+
+          <div className="bg-white shadow rounded">
+            {instrument.transactions.map((t, i) => (
+              <div className="border-bottom p-2">
+                <Row className="align-items-center">
+                  <Col xs={2} lg={3} className="d-none d-lg-block">
+                    {t.direction === SELL ? (
                       <i className="icono-arrow1-right"></i>
                     ) : (
                       <i className="icono-arrow1-left"></i>
                     )}
-                    <div className="text-right d-flex justify-content-center align-items-center">
-                      {(t.price / t.boughtAt).toFixed(5)} /{" "}
-                      {t.price.toLocaleString()} EUR @{" "}
-                      {t.boughtAt.toLocaleString()}
-                      {isEdit && (
-                        <div className="ml-3">
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => deleteTransaction(t.id)}
-                          >
-                            Delete
-                          </Button>
+                  </Col>
+                  <Col xs={6} lg={3}>
+                    <SmallLabel>Take profit</SmallLabel>
+                    {t.takeProfit}
+                  </Col>
+                  <Col xs={6} lg={3} className="text-right text-lg-left">
+                    <SmallLabel>Date</SmallLabel>
+                    {t.date.toLocaleString()}
+                  </Col>
+                  <Col xs={12} lg={3}>
+                    <div
+                      className="d-flex justify-content-between align-items-center text-left text-lg-right mt-2 mt-lg-0"
+                      style={{ minHeight: "25px" }}
+                    >
+                      <div className="w-100">
+                        <div className="d-inline-block d-lg-block">
+                          {(t.price / t.rate).toFixed(5)} /{" "}
+                          {t.price.toLocaleString()} EUR
                         </div>
+                        <div className="d-inline-block d-lg-block ml-1 ml-lg-0">
+                          @ {t.rate.toLocaleString()}
+                        </div>
+                      </div>
+                      {edit && (
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => deleteTransaction(t.id)}
+                        >
+                          Remove
+                          {/* <img src={deleteIcon} width="16" /> */}
+                        </Button>
                       )}
                     </div>
-                  </div>
-                ))}
+                  </Col>
+                </Row>
               </div>
-            </Col>
-          </Row>
+            ))}
+          </div>
         </div>
       </Collapse>
     </>

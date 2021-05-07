@@ -4,17 +4,17 @@ import RadioGroup from "./RadioGroup";
 
 export const PAIRS = {
   BTCEUR: {
-    symbol: "BTCEUR",
+    name: "BTCEUR",
     left: "BTC",
     right: "EUR",
   },
   ETHEUR: {
-    symbol: "ETHEUR",
+    name: "ETHEUR",
     left: "ETH",
     right: "EUR",
   },
   XLMEUR: {
-    symbol: "XLMEUR",
+    name: "XLMEUR",
     left: "XLM",
     right: "EUR",
   },
@@ -26,9 +26,10 @@ export const BUY = 1;
 function NewTransactionModal({ submit }) {
   const [show, setShow] = useState(false);
   const [price, setPrice] = useState(0);
-  const [boughtAt, setBoughtAt] = useState(0);
+  const [rate, setrate] = useState(0);
   const [pair, setPair] = useState(PAIRS["BTCEUR"]);
   const [direction, setDirection] = useState("Buy");
+  const [date, setDate] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -38,9 +39,10 @@ function NewTransactionModal({ submit }) {
 
     submit({
       pair,
+      date,
       price: parseFloat(price),
-      boughtAt: parseFloat(boughtAt),
-      direction: direction === SELL ? -1 : 1,
+      rate: parseFloat(rate),
+      direction: direction === "Sell" ? -1 : 1,
     });
     setShow(false);
   }
@@ -88,25 +90,32 @@ function NewTransactionModal({ submit }) {
                 </Form.Control>
               </Form.Group>
             </Form.Row>
-            <Form.Group controlId="formAmountSpent">
-              <Form.Label>{pair.right}</Form.Label>
+            <Form.Group>
+              <Form.Label>Transaction date</Form.Label>
               <Form.Control
-                type="number"
-                step="any"
-                onChange={(e) => setPrice(e.target.value)}
-              />
-              <Form.Text className="text-muted">
-                We'll never share this with anyone else.
-              </Form.Text>
-            </Form.Group>
-            <Form.Group controlId="formBoughtAt">
-              <Form.Label>Exchange rate</Form.Label>
-              <Form.Control
-                type="number"
-                step="any"
-                onChange={(e) => setBoughtAt(e.target.value)}
+                type="datetime-local"
+                name="date_of_birth"
+                onChange={(e) => setDate(e.target.value)}
               />
             </Form.Group>
+            <Form.Row>
+              <Form.Group as={Col} controlId="formAmountSpent">
+                <Form.Label>{pair.right}</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="any"
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formrate">
+                <Form.Label>Exchange rate</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="any"
+                  onChange={(e) => setrate(e.target.value)}
+                />
+              </Form.Group>
+            </Form.Row>
             <div className="text-right">
               <Button variant="primary" type="submit" size="sm">
                 Add

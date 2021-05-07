@@ -11,6 +11,14 @@ export const StatsValue = styled(LargeText)`
     !props.value ? "#000" : props.value > 0 ? "#03cea4" : "#eb5e28"};
 `;
 
+export const SmallLabel = styled.div`
+  font-size: 0.75rem;
+  font-weight: bolder;
+  color: #aaa;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+`;
+
 export const Arrow = styled.div`
   display: inline-block;
   cursor: pointer;
@@ -20,5 +28,6 @@ export const Arrow = styled.div`
   height: 20px;
   transition: all 0.6s;
   transform: rotate(45deg);
+  margin: 5px;
   ${(props) => props.upsidedown && "transform: rotate(-135deg);"};
 `;

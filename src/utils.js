@@ -4,3 +4,7 @@ export const fetchLatestPrice = async (pair = "BTCEUR") => {
   );
   return response.json();
 };
+
+export function generateId() {
+  return new Date().valueOf();
+}
