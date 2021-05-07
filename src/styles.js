@@ -27,9 +27,9 @@ export const Arrow = styled.div`
   &::before {
     position: absolute;
     content: "";
-    width: 15px;
-    height: 15px;
-    top: 0px;
+    width: 20px;
+    height: 20px;
+    top: -5px;
     cursor: pointer;
     border-bottom: 1px solid #000;
     border-right: 1px solid #000;
@@ -38,6 +38,6 @@ export const Arrow = styled.div`
     /* margin: 6px; */
     ${(props) =>
       props.upsidedown &&
-      "transform: rotate(-135deg); top: 6px; border-bottom: 4px solid #F1D458; border-right: 4px solid #F1D458"}
+      "transform: rotate(-135deg); top:7px; border-bottom: 4px solid #000; border-right: 4px solid #000"}
   }
 `;
