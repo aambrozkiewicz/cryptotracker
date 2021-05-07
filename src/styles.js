@@ -20,14 +20,24 @@ export const SmallLabel = styled.div`
 `;
 
 export const Arrow = styled.div`
-  display: inline-block;
-  cursor: pointer;
-  border-bottom: 1px solid #666;
-  border-right: 1px solid #666;
+  position: relative;
   width: 20px;
   height: 20px;
-  transition: all 0.6s;
-  transform: rotate(45deg);
   margin: 6px;
-  ${(props) => props.upsidedown && "transform: rotate(-135deg)"};
+  &::before {
+    position: absolute;
+    content: "";
+    width: 15px;
+    height: 15px;
+    top: 0px;
+    cursor: pointer;
+    border-bottom: 1px solid #000;
+    border-right: 1px solid #000;
+    transition: all 0.6s;
+    transform: rotate(45deg);
+    /* margin: 6px; */
+    ${(props) =>
+      props.upsidedown &&
+      "transform: rotate(-135deg); top: 6px; border-bottom: 4px solid #F1D458; border-right: 4px solid #F1D458"}
+  }
 `;
