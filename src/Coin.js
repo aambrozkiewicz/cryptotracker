@@ -95,7 +95,7 @@ function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
                   <Col xs={12} lg={3}>
                     <div
                       className="d-flex justify-content-between align-items-center text-left text-lg-right my-2 my-lg-0"
-                      style={{ minHeight: "25px" }}
+                      style={{ minHeight: "32px" }}
                     >
                       <div className="w-100">
                         <div className="d-inline-block d-lg-block">
@@ -110,6 +110,7 @@ function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
                         <Button
                           variant="link"
                           size="sm"
+                          className="ml-0 ml-lg-2"
                           onClick={() => deleteTransaction(t.id)}
                         >
                           Remove
