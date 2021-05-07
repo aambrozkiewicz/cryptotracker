@@ -24,7 +24,11 @@ function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
             onClick={() => setOpen((open) => !open)}
             upsidedown={open}
           />
-          <h3 style={{ whiteSpace: "nowrap" }} className="m-0">
+          <h3
+            style={{ whiteSpace: "nowrap", cursor: "pointer" }}
+            className="m-0"
+            onClick={() => setOpen((open) => !open)}
+          >
             {instrument.name}
           </h3>
           {loading && (
