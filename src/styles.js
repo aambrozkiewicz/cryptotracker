@@ -22,8 +22,8 @@ export const SmallLabel = styled.div`
 export const Arrow = styled.div`
   display: inline-block;
   cursor: pointer;
-  border-bottom: 2px solid #ccc;
-  border-right: 2px solid #ccc;
+  border-bottom: 1px solid #666;
+  border-right: 1px solid #666;
   width: 20px;
   height: 20px;
   transition: all 0.6s;

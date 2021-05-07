@@ -36,7 +36,7 @@ function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
             style={{
               height: "1px",
               width: "100%",
-              backgroundColor: "#dadada",
+              backgroundColor: "#666",
             }}
           ></div>
         </Col>
