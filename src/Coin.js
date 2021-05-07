@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button, Col, Collapse, Row, Spinner } from "react-bootstrap";
 import { SELL } from "./NewTransactionModal";
 import { Arrow, LargeText, SmallLabel, StatsValue } from "./styles";
-import deleteIcon from "./img/cancel.svg";
 
 function Coin({ instrument, currentPrice, loading, edit, deleteTransaction }) {
   const [open, setOpen] = useState(false);
