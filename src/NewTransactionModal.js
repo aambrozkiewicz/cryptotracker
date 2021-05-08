@@ -19,7 +19,7 @@ export const PAIRS = {
     right: "EUR",
   },
   DOGEEUR: {
-    name: "DOGE",
+    name: "DOGEEUR",
     left: "DOGE",
     right: "EUR",
   },
