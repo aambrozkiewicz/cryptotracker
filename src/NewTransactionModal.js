@@ -13,9 +13,9 @@ export const PAIRS = {
     left: "ETH",
     right: "EUR",
   },
-  XLMEUR: {
-    name: "XLMEUR",
-    left: "XLM",
+  ETCEUR: {
+    name: "ETCEUR",
+    left: "ETC",
     right: "EUR",
   },
   DOGEEUR: {

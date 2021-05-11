@@ -33,11 +33,8 @@ export const Arrow = styled.div`
     cursor: pointer;
     border-bottom: 1px solid #000;
     border-right: 1px solid #000;
-    transition: all 0.6s;
-    transform: rotate(45deg);
-    /* margin: 6px; */
-    ${(props) =>
-      props.upsidedown &&
-      "transform: rotate(-135deg); top:7px; border-bottom: 4px solid #000; border-right: 4px solid #000"}
+    transition: all 0.9s;
+    transform: rotate(405deg);
+    ${(props) => props.upsidedown && "transform: rotate(-135deg); top:7px;"}
   }
 `;

@@ -5,7 +5,7 @@ import "./App.css";
 import Coin from "./Coin";
 import NewTransactionModal, { BUY, PAIRS, SELL } from "./NewTransactionModal";
 import { SmallLabel, StatsValue } from "./styles";
-import { fetchLatestPrice, generateId } from "./utils";
+import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
 
 // NOTE: transactions are sorted in ASC order
 const instrumentSelector = (transactions) =>
@@ -76,8 +76,11 @@ function App() {
   async function fetchPrices() {
     setLoading(true);
     for await (const pair of Object.keys(instruments)) {
-      const priceResponse = await fetchLatestPrice(pair);
-      setPrices((c) => ({ ...c, [pair]: parseFloat(priceResponse.price) }));
+      const priceResponse = await fetchCoinpaprika(COINPAPRIKA_COIN_ID[pair]);
+      setPrices((c) => ({
+        ...c,
+        [pair]: parseFloat(priceResponse.quotes["EUR"].price),
+      }));
     }
     setLoading(false);
   }
