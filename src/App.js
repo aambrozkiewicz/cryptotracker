@@ -32,7 +32,7 @@ const instrumentSelector = (transactions) =>
       transaction.takeProfit = ratio * exchangeProfit;
     }
 
-    instrument.name = transaction.pair.name;
+    instrument.name = transaction.pair.left;
     instrument.totalTakeProfit += transaction.takeProfit;
     instrument.totalHodl +=
       (transaction.price / transaction.rate) * transaction.direction;
