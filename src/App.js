@@ -51,7 +51,9 @@ const coinReducer = (transactions) =>
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
-    const local = window.localStorage.getItem("transactions");
+    const local = window.localStorage.getItem(
+      "c15b977dd99332ca8623fbdfb86827e8"
+    );
 
     return local
       ? JSON.parse(local)
