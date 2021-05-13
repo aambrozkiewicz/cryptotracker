@@ -2,39 +2,17 @@ import { useState } from "react";
 import { Button, Col, Form, Modal } from "react-bootstrap";
 import RadioGroup from "./RadioGroup";
 
-export const PAIRS = {
-  BTCEUR: {
-    name: "BTCEUR",
-    left: "BTC",
-    right: "EUR",
-  },
-  ETHEUR: {
-    name: "ETHEUR",
-    left: "ETH",
-    right: "EUR",
-  },
-  ETCEUR: {
-    name: "ETCEUR",
-    left: "ETC",
-    right: "EUR",
-  },
-  DOGEEUR: {
-    name: "DOGEEUR",
-    left: "DOGE",
-    right: "EUR",
-  },
-};
+export const COINS = ["ETH", "ETC"];
+export const TYPE_SELL = "Sell";
+export const TYPE_BUY = "Buy";
 
-export const SELL = -1;
-export const BUY = 1;
-
-function NewTransactionModal({ submit }) {
+function NewTransactionModal({ submit, totalHodlByCoin }) {
   const [show, setShow] = useState(false);
-  const [price, setPrice] = useState(0);
-  const [rate, setrate] = useState(0);
-  const [pair, setPair] = useState(PAIRS["BTCEUR"]);
-  const [direction, setDirection] = useState("Buy");
-  const [date, setDate] = useState("");
+
+  const [coin, setCoin] = useState("ETH");
+  const [value, setValue] = useState(0);
+  const [rate, setRate] = useState(0);
+  const [type, setType] = useState(TYPE_BUY);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -42,24 +20,29 @@ function NewTransactionModal({ submit }) {
   function handleSubmit(event) {
     event.preventDefault();
 
+    let left = 0;
+    let right = 0;
+    if (type === TYPE_BUY) {
+      left = value;
+      right = value / rate;
+    } else {
+      left = value * rate;
+      right = value;
+    }
+
     submit({
-      pair,
-      date,
-      price: parseFloat(price),
-      rate: parseFloat(rate),
-      direction: direction === "Sell" ? -1 : 1,
+      coin,
+      type,
+      left,
+      right,
+      rate,
     });
     setShow(false);
   }
 
   return (
     <>
-      <Button
-        variant="outline-primary"
-        onClick={handleShow}
-        size="sm"
-        style={{ whiteSpace: "nowrap" }}
-      >
+      <Button variant="outline-primary" onClick={handleShow} size="sm">
         Add new transaction
       </Button>
 
@@ -75,41 +58,47 @@ function NewTransactionModal({ submit }) {
                 className="d-flex align-items-center justify-content-center"
               >
                 <RadioGroup
-                  options={["Buy", "Sell"]}
-                  onChange={(v) => setDirection(v)}
-                  value={direction}
+                  options={[TYPE_BUY, TYPE_SELL]}
+                  onChange={(v) => setType(v)}
+                  value={type}
                 />
               </Form.Group>
-              <Form.Group as={Col} controlId="formExchangePair">
-                <Form.Label>Exhange pair</Form.Label>
+              <Form.Group as={Col} controlId="formCoin">
+                <Form.Label>Coin</Form.Label>
                 <Form.Control
                   as="select"
-                  onChange={(e) => setPair(PAIRS[e.target.value])}
-                  value={pair.symbol}
+                  onChange={(e) => setCoin(e.target.value)}
+                  value={coin}
                 >
-                  {Object.keys(PAIRS).map((pairName, i) => (
-                    <option key={i} value={pairName}>
-                      {pairName}
+                  {COINS.map((coinName, i) => (
+                    <option key={i} value={coinName}>
+                      {coinName}
                     </option>
                   ))}
                 </Form.Control>
               </Form.Group>
             </Form.Row>
-            <Form.Group>
-              <Form.Label>Transaction date</Form.Label>
-              <Form.Control
-                type="datetime-local"
-                name="date_of_birth"
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </Form.Group>
             <Form.Row>
-              <Form.Group as={Col} controlId="formAmountSpent">
-                <Form.Label>{pair.right}</Form.Label>
+              <Form.Group as={Col} controlId="formAmount">
+                <Form.Label className="d-flex align-items-center justify-content-between">
+                  {type === TYPE_BUY ? "EUR" : coin}
+                  {type === TYPE_SELL && totalHodlByCoin[coin] > 0 && (
+                    <a
+                      href="/#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setValue(totalHodlByCoin[coin]);
+                      }}
+                    >
+                      max
+                    </a>
+                  )}
+                </Form.Label>
                 <Form.Control
                   type="number"
                   step="any"
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => setValue(parseFloat(e.target.value))}
+                  value={value}
                 />
               </Form.Group>
               <Form.Group as={Col} controlId="formrate">
@@ -117,7 +106,8 @@ function NewTransactionModal({ submit }) {
                 <Form.Control
                   type="number"
                   step="any"
-                  onChange={(e) => setrate(e.target.value)}
+                  value={rate}
+                  onChange={(e) => setRate(parseFloat(e.target.value))}
                 />
               </Form.Group>
             </Form.Row>

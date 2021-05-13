@@ -19,22 +19,7 @@ export const SmallLabel = styled.div`
   text-transform: uppercase;
 `;
 
-export const Arrow = styled.div`
-  position: relative;
-  width: 20px;
-  height: 20px;
-  margin: 6px;
-  &::before {
-    position: absolute;
-    content: "";
-    width: 20px;
-    height: 20px;
-    top: -5px;
-    cursor: pointer;
-    border-bottom: 1px solid #000;
-    border-right: 1px solid #000;
-    transition: all 0.9s;
-    transform: rotate(405deg);
-    ${(props) => props.upsidedown && "transform: rotate(-135deg); top:7px;"}
-  }
+export const FunnyLogo = styled.img`
+  transition: all 0.6s;
+  ${(props) => props.upsidedown && "transform: rotate(-720deg); top:7px;"}
 `;

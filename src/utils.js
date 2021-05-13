@@ -1,19 +1,19 @@
-export const fetchLatestPrice = async (pair = "BTCEUR") => {
+export function generateId() {
+  return new Date().valueOf();
+}
+
+export const fetchBinance = async (pair = "BTCEUR") => {
   const response = await fetch(
     `https://api.binance.com/api/v1/ticker/price?symbol=${pair}`
   );
   return response.json();
 };
 
-export function generateId() {
-  return new Date().valueOf();
-}
-
 export const COINPAPRIKA_COIN_ID = {
-  BTCEUR: "btc-bitcoin",
-  ETHEUR: "eth-ethereum",
-  ETCEUR: "etc-ethereum-classic",
-  DOGEEUR: "doge-dogecoin",
+  BTC: "btc-bitcoin",
+  ETH: "eth-ethereum",
+  ETC: "etc-ethereum-classic",
+  DOGE: "doge-dogecoin",
 };
 
 export const fetchCoinpaprika = async (coinId, quotes = ["EUR"]) => {

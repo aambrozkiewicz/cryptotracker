@@ -1,44 +1,52 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import "./App.css";
 import Coin from "./Coin";
-import NewTransactionModal, { BUY, PAIRS, SELL } from "./NewTransactionModal";
+import NewTransactionModal, {
+  TYPE_BUY,
+  TYPE_SELL,
+} from "./NewTransactionModal";
 import { SmallLabel, StatsValue } from "./styles";
 import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
 
-// NOTE: transactions are sorted in ASC order
-const instrumentSelector = (transactions) =>
+const coinReducer = (transactions) =>
   transactions.reduce((previous, transaction) => {
-    const instrument = previous[transaction.pair.name] || {
+    const coin = previous[transaction.coin] || {
+      name: transaction.coin,
+      takeProfit: 0,
+      hodl: 0,
+      acquisitionCost: 0,
       transactions: [],
-      totalTakeProfit: 0,
-      totalHodl: 0,
     };
 
-    transaction.takeProfit = 0;
-    instrument.transactions.push(transaction);
+    transaction.direction = transaction.type === TYPE_BUY ? 1 : -1;
 
-    if (transaction.direction === SELL) {
-      const cost = instrument.transactions
-        .filter((t) => t.direction === BUY)
-        .reduce((p, c) => p + c.price * c.direction, 0);
-      const value = instrument.transactions
-        .filter((t) => t.direction === BUY)
-        .reduce((p, c) => p + c.price / c.rate, 0);
-      const exchangeProfit = value * transaction.rate - cost;
-      const takeProfitValue = transaction.price / transaction.rate;
-      const ratio = takeProfitValue / value;
-      transaction.takeProfit = ratio * exchangeProfit;
+    if (transaction.type === TYPE_SELL) {
+      const cost = coin.transactions
+        .filter((t) => t.type === TYPE_BUY)
+        .reduce((p, c) => p + c.left, 0);
+      const hodl = coin.transactions
+        .filter((t) => t.type === TYPE_BUY)
+        .reduce((p, c) => p + c.right, 0);
+      const hodlProfit = hodl * transaction.rate - cost;
+      const ratio = transaction.right / hodl;
+
+      transaction.takeProfit = ratio * hodlProfit;
+    } else {
+      transaction.takeProfit = 0;
     }
 
-    instrument.name = transaction.pair.left;
-    instrument.totalTakeProfit += transaction.takeProfit;
-    instrument.totalHodl +=
-      (transaction.price / transaction.rate) * transaction.direction;
-    previous[transaction.pair.name] = instrument;
+    coin.takeProfit += transaction.takeProfit;
+    coin.hodl += transaction.right * transaction.direction;
+    coin.acquisitionCost +=
+      transaction.left * transaction.direction + transaction.takeProfit;
+    coin.transactions.push(transaction);
 
-    return previous;
+    return {
+      ...previous,
+      [transaction.coin]: coin,
+    };
   }, {});
 
 function App() {
@@ -50,32 +58,43 @@ function App() {
       : [
           {
             id: generateId(),
-            pair: PAIRS["BTCEUR"],
-            date: "2021-05-01T23:59",
-            price: 180.85,
-            rate: 44687.113,
-            direction: BUY,
+            coin: "ETH",
+            type: TYPE_BUY,
+            left: 206.94,
+            right: 0.06089179198,
+            rate: 3398.4876,
           },
         ];
   });
   const [prices, setPrices] = useState({});
-  const [totalSpent, setTotalSpent] = useState(0);
-  const [currentValue, setCurrentValue] = useState(0);
-  const [profit, setProfit] = useState(0);
+
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState(false);
 
-  const instruments = instrumentSelector(transactions);
-  const valueChange =
-    totalSpent > 0 ? (currentValue / totalSpent) * 100 - 100 : 0;
-  const totalTakeProfit = Object.values(instruments).reduce(
-    (p, instrument) => p + instrument.totalTakeProfit,
+  const coins = coinReducer(transactions);
+  const acquisitionCost = Object.values(coins).reduce(
+    (p, c) => p + c.acquisitionCost,
     0
+  );
+  const value = Object.values(coins).reduce((p, c) => {
+    return p + c.hodl * (prices[c.name] || 0);
+  }, 0);
+  const profit = value - acquisitionCost;
+  const profitPercentage =
+    acquisitionCost > 0 ? (value * 100) / acquisitionCost - 100 : 0;
+  const takeProfit = Object.values(coins).reduce((p, c) => p + c.takeProfit, 0);
+
+  const hodlByCoin = Object.values(coins).reduce(
+    (p, c) => ({
+      [c.name]: c.hodl,
+      ...p,
+    }),
+    {}
   );
 
   async function fetchPrices() {
     setLoading(true);
-    for await (const pair of Object.keys(instruments)) {
+    for await (const pair of Object.keys(coins)) {
       const priceResponse = await fetchCoinpaprika(COINPAPRIKA_COIN_ID[pair]);
       setPrices((c) => ({
         ...c,
@@ -91,37 +110,14 @@ function App() {
     window.localStorage.setItem("transactions", JSON.stringify(transactions));
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    let totalSpent = 0;
-    let totalValue = 0;
-
-    for (const [
-      instrumentName,
-      { transactions: instrumentTransactions },
-    ] of Object.entries(instruments)) {
-      totalSpent += instrumentTransactions.reduce(
-        (p, c) => p + c.price * c.direction,
-        0
-      );
-
-      let hodl = instrumentTransactions.reduce(
-        (p, c) => p + (c.price * c.direction) / c.rate,
-        0
-      );
-      totalValue += (prices[instrumentName] || 0) * hodl;
-    }
-
-    setTotalSpent(totalSpent);
-    setCurrentValue(totalValue);
-    setProfit(currentValue - totalSpent - totalTakeProfit);
-  }, [instruments, prices, totalTakeProfit, currentValue]);
-
-  function addNewTransaction(transaction) {
-    setTransactions(
-      [...transactions, { ...transaction, id: generateId() }].sort(
-        (a, b) => new Date(a.date) - new Date(b.date)
-      )
-    );
+  function addTransaction(transaction) {
+    setTransactions([
+      ...transactions,
+      {
+        id: generateId(),
+        ...transaction,
+      },
+    ]);
   }
 
   function deleteTransaction(id) {
@@ -138,7 +134,10 @@ function App() {
             </Col>
             <Col sm={12} lg={true}>
               <div className="text-left text-md-right mt-3 mt-lg-0">
-                <NewTransactionModal submit={addNewTransaction} />{" "}
+                <NewTransactionModal
+                  submit={addTransaction}
+                  totalHodlByCoin={hodlByCoin}
+                />{" "}
                 <Button
                   size="sm"
                   variant="outline-primary"
@@ -152,6 +151,9 @@ function App() {
                   size="sm"
                 >
                   Update prices
+                  {loading && (
+                    <Spinner animation="border" size="sm" className="ml-1" />
+                  )}
                 </Button>
               </div>
             </Col>
@@ -163,7 +165,7 @@ function App() {
         <Row className="my-3">
           <Col xs={12} lg>
             <SmallLabel>Acquisition Cost</SmallLabel>
-            <StatsValue>{totalSpent.toLocaleString()} EUR</StatsValue>
+            <StatsValue>{acquisitionCost.toLocaleString()} EUR</StatsValue>
           </Col>
           <Col xs={12} lg>
             <SmallLabel>Profit/Loss</SmallLabel>
@@ -171,28 +173,26 @@ function App() {
           </Col>
           <Col xs={12} lg>
             <SmallLabel>Realized profit</SmallLabel>
-            <StatsValue>{totalTakeProfit.toLocaleString()} EUR</StatsValue>
+            <StatsValue>{takeProfit.toLocaleString()} EUR</StatsValue>
           </Col>
           <Col xs={12} lg className="text-left text-lg-right">
             <SmallLabel>Current Holdings</SmallLabel>
             <StatsValue
-              value={valueChange}
+              value={profitPercentage}
               className="d-block d-lg-inline-block"
             >
-              {currentValue.toLocaleString()} EUR {valueChange.toFixed(2)} %
+              {value.toLocaleString()} EUR {profitPercentage.toFixed(2)} %
             </StatsValue>
           </Col>
         </Row>
-
         <hr />
-        {Object.entries(instruments).map(([instrumentName, instrument], i) => (
+        {Object.entries(coins).map(([coinName, coin], i) => (
           <Coin
             key={i}
-            instrument={instrument}
-            currentPrice={prices[instrumentName] || 0}
+            coin={coin}
+            price={prices[coinName] || 0}
             edit={edit}
-            loading={loading}
-            deleteTransaction={deleteTransaction}
+            deleteTransactionCallback={deleteTransaction}
           />
         ))}
       </Container>
