@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Col, Form, Modal } from "react-bootstrap";
 import RadioGroup from "./RadioGroup";
 
-export const COINS = ["BTC", "ETH", "ETC"];
+export const COINS = ["BTC", "ETH", "ETC", "DOGE", "BCH"];
 export const TYPE_SELL = "Sell";
 export const TYPE_BUY = "Buy";
 

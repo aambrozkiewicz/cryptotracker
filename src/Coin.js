@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Col, Collapse, Row } from "react-bootstrap";
-import { TYPE_SELL } from "./NewTransactionModal";
+import { TYPE_BUY, TYPE_SELL } from "./NewTransactionModal";
 import { FunnyLogo, LargeText, SmallLabel, StatsValue } from "./styles";
 
 function Coin({
@@ -15,6 +15,9 @@ function Coin({
   const profit = value - acquisitionCost;
   const profitPercentage =
     acquisitionCost > 0 ? (value * 100) / acquisitionCost - 100 : 0;
+  const buyTransactions = transactions.filter((t) => t.type == TYPE_BUY);
+  const avgBuyRate =
+    buyTransactions.reduce((p, c) => p + c.rate, 0) / buyTransactions.length;
 
   return (
     <>
@@ -63,10 +66,14 @@ function Coin({
               <LargeText>{acquisitionCost.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
+              <SmallLabel>Avg buy rate</SmallLabel>
+              <LargeText>{avgBuyRate.toLocaleString()}</LargeText>
+            </Col>
+            <Col sm={12} md={3} className="">
               <SmallLabel>HODL</SmallLabel>
               <LargeText>{hodl}</LargeText>
             </Col>
-            <Col sm={12} md={6} className="text-left text-lg-right">
+            <Col sm={12} md={3} className="text-left text-lg-right">
               <SmallLabel>Current Holdings</SmallLabel>
               <LargeText>{value.toLocaleString()} EUR</LargeText>
             </Col>

@@ -14,6 +14,7 @@ export const COINPAPRIKA_COIN_ID = {
   ETH: "eth-ethereum",
   ETC: "etc-ethereum-classic",
   DOGE: "doge-dogecoin",
+  BCH: "bch-bitcoin-cash",
 };
 
 export const fetchCoinpaprika = async (coinId, quotes = ["EUR"]) => {
