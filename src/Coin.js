@@ -67,7 +67,7 @@ function Coin({
             </Col>
             <Col sm={12} md={3} className="">
               <SmallLabel>Avg buy rate</SmallLabel>
-              <LargeText>{avgBuyRate.toLocaleString()}</LargeText>
+              <LargeText>{avgBuyRate.toLocaleString()} EUR</LargeText>
             </Col>
             <Col sm={12} md={3} className="">
               <SmallLabel>HODL</SmallLabel>
@@ -78,7 +78,6 @@ function Coin({
               <LargeText>{value.toLocaleString()} EUR</LargeText>
             </Col>
           </Row>
-
           <div className="bg-white shadow rounded">
             {transactions.map((transaction, i) => (
               <div key={i} className="border-bottom p-2">

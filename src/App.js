@@ -10,6 +10,7 @@ import NewTransactionModal, {
 import { Footer, SmallLabel, StatsValue } from "./styles";
 import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
 import coinpaprikaLogo from "./img/cp_logo_hor.svg";
+import Pullable from "react-pullable";
 
 const STORAGE_KEY = "c15b977dd99332ca8623fbdfb86827e8";
 
@@ -135,10 +136,15 @@ function App() {
       <div style={{ paddingBottom: "4rem" }}>
         <div className="bg-white py-3 border-bottom">
           <Container>
-            <Row className="align-items-center">
+            <Row>
               <Col>
                 <h2 className="header m-0 d-inline-block">Portfolio</h2>
-                {loading && <Spinner animation="grow" className="ml-1" />}
+                {loading && (
+                  <Spinner
+                    animation="grow"
+                    className="ml-1 d-none d-lg-inline-block"
+                  />
+                )}
               </Col>
               <Col sm={12} lg={true}>
                 <div className="text-left text-md-right mt-3 mt-lg-0">
@@ -154,6 +160,7 @@ function App() {
                     onClick={fetchPrices}
                     variant="outline-primary"
                     size="sm"
+                    className="d-none d-lg-inline-block"
                   >
                     Update prices
                   </Button>
@@ -163,42 +170,42 @@ function App() {
           </Container>
         </div>
 
-        <Container>
-          <Row className="my-3">
-            <Col xs={12} lg>
-              <SmallLabel>Acquisition Cost</SmallLabel>
-              <StatsValue>{acquisitionCost.toLocaleString()} EUR</StatsValue>
-            </Col>
-            <Col xs={12} lg>
-              <SmallLabel>Profit/Loss</SmallLabel>
-              <StatsValue>{profit.toLocaleString()} EUR</StatsValue>
-            </Col>
-            <Col xs={12} lg>
-              <SmallLabel>Realized profit</SmallLabel>
-              <StatsValue>{takeProfit.toLocaleString()} EUR</StatsValue>
-            </Col>
-            <Col xs={12} lg className="text-left text-lg-right">
-              <SmallLabel>Current Holdings</SmallLabel>
-              <StatsValue
-                value={profitPercentage}
-                className="d-block d-lg-inline-block"
-              >
-                {value.toLocaleString()} EUR {profitPercentage.toFixed(2)} %
-              </StatsValue>
-            </Col>
-          </Row>
-          <hr />
-          {Object.entries(coins).map(([coinName, coin], i) => (
-            <Coin
-              key={i}
-              coin={coin}
-              price={prices[coinName] || 0}
-              edit={edit}
-              deleteTransactionCallback={deleteTransaction}
-            />
-          ))}
-        </Container>
+        <Pullable onRefresh={fetchPrices}>
+          <Container>
+            <Row className="my-3">
+              <Col xs={12} lg>
+                <SmallLabel>Acquisition Cost</SmallLabel>
+                <StatsValue>{acquisitionCost.toLocaleString()} EUR</StatsValue>
+              </Col>
+              <Col xs={12} lg>
+                <SmallLabel>Current Holdings</SmallLabel>
+                <StatsValue>{value.toLocaleString()} EUR</StatsValue>
+              </Col>
+              <Col xs={12} lg>
+                <SmallLabel>Realized profit</SmallLabel>
+                <StatsValue>{takeProfit.toLocaleString()} EUR</StatsValue>
+              </Col>
+              <Col xs={12} lg className="text-left text-lg-right">
+                <SmallLabel>Profit/Loss</SmallLabel>
+                <StatsValue value={profitPercentage}>
+                  {profit.toLocaleString()} EUR {profitPercentage.toFixed(2)} %
+                </StatsValue>
+              </Col>
+            </Row>
+            <hr />
+            {Object.entries(coins).map(([coinName, coin], i) => (
+              <Coin
+                key={i}
+                coin={coin}
+                price={prices[coinName] || 0}
+                edit={edit}
+                deleteTransactionCallback={deleteTransaction}
+              />
+            ))}
+          </Container>
+        </Pullable>
       </div>
+
       <Footer className="text-center">
         <Container>
           <SmallLabel
