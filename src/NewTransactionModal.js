@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Button, Col, Form, Modal } from "react-bootstrap";
 import RadioGroup from "./RadioGroup";
 
-export const COINS = ["ETH", "ETC"];
+export const COINS = ["BTC", "ETH", "ETC"];
 export const TYPE_SELL = "Sell";
 export const TYPE_BUY = "Buy";
 
-function NewTransactionModal({ submit, totalHodlByCoin }) {
+function NewTransactionModal({ submit, coins }) {
   const [show, setShow] = useState(false);
 
   const [coin, setCoin] = useState("ETH");
@@ -82,12 +82,12 @@ function NewTransactionModal({ submit, totalHodlByCoin }) {
               <Form.Group as={Col} controlId="formAmount">
                 <Form.Label className="d-flex align-items-center justify-content-between">
                   {type === TYPE_BUY ? "EUR" : coin}
-                  {type === TYPE_SELL && totalHodlByCoin[coin] > 0 && (
+                  {type === TYPE_SELL && coins[coin] && coins[coin].hodl > 0 && (
                     <a
                       href="/#"
                       onClick={(e) => {
                         e.preventDefault();
-                        setValue(totalHodlByCoin[coin]);
+                        setValue(coins[coin].hodl);
                       }}
                     >
                       max

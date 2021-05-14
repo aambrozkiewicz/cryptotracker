@@ -10,6 +10,8 @@ import NewTransactionModal, {
 import { SmallLabel, StatsValue } from "./styles";
 import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
 
+const STORAGE_KEY = "c15b977dd99332ca8623fbdfb86827e8";
+
 const coinReducer = (transactions) =>
   transactions.reduce((previous, transaction) => {
     const coin = previous[transaction.coin] || {
@@ -49,11 +51,21 @@ const coinReducer = (transactions) =>
     };
   }, {});
 
+const statsReducer = (coins, prices) =>
+  Object.values(coins).reduce(
+    (p, c) => {
+      return {
+        value: p.value + c.hodl * (prices[c.name] || 0),
+        acquisitionCost: p.acquisitionCost + c.acquisitionCost,
+        takeProfit: p.takeProfit + c.takeProfit,
+      };
+    },
+    { value: 0, acquisitionCost: 0, takeProfit: 0 }
+  );
+
 function App() {
   const [transactions, setTransactions] = useState(() => {
-    const local = window.localStorage.getItem(
-      "c15b977dd99332ca8623fbdfb86827e8"
-    );
+    const local = window.localStorage.getItem(STORAGE_KEY);
 
     return local
       ? JSON.parse(local)
@@ -74,25 +86,11 @@ function App() {
   const [edit, setEdit] = useState(false);
 
   const coins = coinReducer(transactions);
-  const acquisitionCost = Object.values(coins).reduce(
-    (p, c) => p + c.acquisitionCost,
-    0
-  );
-  const value = Object.values(coins).reduce((p, c) => {
-    return p + c.hodl * (prices[c.name] || 0);
-  }, 0);
+  const { value, acquisitionCost, takeProfit } = statsReducer(coins, prices);
+
   const profit = value - acquisitionCost;
   const profitPercentage =
     acquisitionCost > 0 ? (value * 100) / acquisitionCost - 100 : 0;
-  const takeProfit = Object.values(coins).reduce((p, c) => p + c.takeProfit, 0);
-
-  const hodlByCoin = Object.values(coins).reduce(
-    (p, c) => ({
-      [c.name]: c.hodl,
-      ...p,
-    }),
-    {}
-  );
 
   async function fetchPrices() {
     setLoading(true);
@@ -109,7 +107,7 @@ function App() {
   useEffect(() => {
     fetchPrices();
 
-    window.localStorage.setItem("transactions", JSON.stringify(transactions));
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function addTransaction(transaction) {
@@ -132,14 +130,12 @@ function App() {
         <Container>
           <Row className="align-items-center">
             <Col>
-              <h1 className="header m-0">Portfolio</h1>
+              <h2 className="header m-0 d-inline-block">Portfolio</h2>
+              {loading && <Spinner animation="grow" className="ml-1" />}
             </Col>
             <Col sm={12} lg={true}>
               <div className="text-left text-md-right mt-3 mt-lg-0">
-                <NewTransactionModal
-                  submit={addTransaction}
-                  totalHodlByCoin={hodlByCoin}
-                />{" "}
+                <NewTransactionModal submit={addTransaction} coins={coins} />{" "}
                 <Button
                   size="sm"
                   variant="outline-primary"
@@ -153,9 +149,6 @@ function App() {
                   size="sm"
                 >
                   Update prices
-                  {loading && (
-                    <Spinner animation="border" size="sm" className="ml-1" />
-                  )}
                 </Button>
               </div>
             </Col>

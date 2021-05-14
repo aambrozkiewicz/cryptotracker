@@ -36,7 +36,7 @@ function Coin({
             className="m-0 mx-2"
             onClick={() => setOpen((open) => !open)}
           >
-            {name} {price.toLocaleString()} EUR
+            {name} <small>{price.toLocaleString()} EUR</small>
           </h3>
         </Col>
         <Col className="d-none d-lg-flex align-items-center">
