@@ -15,7 +15,7 @@ function Coin({
   const profit = value - acquisitionCost;
   const profitPercentage =
     acquisitionCost > 0 ? (value * 100) / acquisitionCost - 100 : 0;
-  const buyTransactions = transactions.filter((t) => t.type == TYPE_BUY);
+  const buyTransactions = transactions.filter((t) => t.type === TYPE_BUY);
   const avgBuyRate =
     buyTransactions.reduce((p, c) => p + c.rate, 0) / buyTransactions.length;
 
