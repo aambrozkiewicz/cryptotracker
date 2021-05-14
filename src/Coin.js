@@ -23,8 +23,8 @@ function Coin({
     <>
       <Row className="mt-3">
         <Col
-          sm={12}
-          lg={true}
+          xs
+          lg
           className="align-items-center d-flex flex-grow-0 text-nowrap"
         >
           <FunnyLogo
@@ -34,13 +34,13 @@ function Coin({
             height="40"
             upsidedown={open}
           />
-          <h3
+          <h4
             style={{ whiteSpace: "nowrap", cursor: "pointer" }}
-            className="m-0 mx-2"
+            className="m-0 ml-2"
             onClick={() => setOpen((open) => !open)}
           >
-            {name} <small>{price.toLocaleString()} EUR</small>
-          </h3>
+            {name}
+          </h4>
         </Col>
         <Col className="d-none d-lg-flex align-items-center">
           <div
@@ -51,10 +51,11 @@ function Coin({
             }}
           ></div>
         </Col>
-        <Col className="text-left text-md-right flex-grow-0 text-nowrap">
-          <StatsValue className="d-inline-block" value={profit}>
+        <Col className="flex-lg-grow-0 text-nowrap text-right">
+          <StatsValue value={profit}>
             {profit.toLocaleString()} EUR {profitPercentage.toLocaleString()} %
           </StatsValue>
+          <div>{price.toLocaleString()} EUR</div>
         </Col>
       </Row>
 
@@ -82,19 +83,19 @@ function Coin({
             {transactions.map((transaction, i) => (
               <div key={i} className="border-bottom p-2">
                 <Row className="align-items-center">
-                  <Col xs={6} lg={3}>
+                  <Col xs={transaction.type === TYPE_SELL ? 12 : 6} lg={3}>
                     <SmallLabel>Rate</SmallLabel>
                     {transaction.rate.toLocaleString()} EUR
                   </Col>
-                  <Col xs={6} lg={3}>
-                    <SmallLabel>Take profit</SmallLabel>
-                    {transaction.type === TYPE_SELL
-                      ? transaction.takeProfit
-                      : "-"}
-                  </Col>
-                  <Col xs={12} lg>
+                  {transaction.type === TYPE_SELL && (
+                    <Col xs lg={3}>
+                      <SmallLabel>Take profit</SmallLabel>
+                      {transaction.takeProfit.toLocaleString()}
+                    </Col>
+                  )}
+                  <Col xs lg>
                     <div
-                      className="d-flex justify-content-between align-items-center text-left text-lg-right mt-2 mt-lg-0"
+                      className="d-flex justify-content-between align-items-center text-right text-lg-right"
                       style={{ minHeight: "32px" }}
                     >
                       <div className="w-100">

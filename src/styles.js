@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const LargeText = styled.div`
-  font-size: x-large;
+  font-size: larger;
   word-wrap: nowrap;
   white-space: nowrap;
 `;
