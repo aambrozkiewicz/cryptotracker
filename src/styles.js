@@ -23,3 +23,10 @@ export const FunnyLogo = styled.img`
   transition: all 0.6s;
   ${(props) => props.upsidedown && "transform: rotate(-720deg); top:7px;"}
 `;
+
+export const Footer = styled.div`
+  position: absolute;
+  height: 3rem;
+  bottom: 0;
+  width: 100%;
+`;

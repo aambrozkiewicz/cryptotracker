@@ -7,8 +7,9 @@ import NewTransactionModal, {
   TYPE_BUY,
   TYPE_SELL,
 } from "./NewTransactionModal";
-import { SmallLabel, StatsValue } from "./styles";
+import { Footer, SmallLabel, StatsValue } from "./styles";
 import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
+import coinpaprikaLogo from "./img/cp_logo_hor.svg";
 
 const STORAGE_KEY = "c15b977dd99332ca8623fbdfb86827e8";
 
@@ -125,72 +126,94 @@ function App() {
   }
 
   return (
-    <div className="mb-3">
-      <div className="bg-white py-3 border-bottom">
+    <div
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+      }}
+    >
+      <div style={{ paddingBottom: "4rem" }}>
+        <div className="bg-white py-3 border-bottom">
+          <Container>
+            <Row className="align-items-center">
+              <Col>
+                <h2 className="header m-0 d-inline-block">Portfolio</h2>
+                {loading && <Spinner animation="grow" className="ml-1" />}
+              </Col>
+              <Col sm={12} lg={true}>
+                <div className="text-left text-md-right mt-3 mt-lg-0">
+                  <NewTransactionModal submit={addTransaction} coins={coins} />{" "}
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
+                    onClick={() => setEdit((e) => !e)}
+                  >
+                    Edit
+                  </Button>{" "}
+                  <Button
+                    onClick={fetchPrices}
+                    variant="outline-primary"
+                    size="sm"
+                  >
+                    Update prices
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+          </Container>
+        </div>
+
         <Container>
-          <Row className="align-items-center">
-            <Col>
-              <h2 className="header m-0 d-inline-block">Portfolio</h2>
-              {loading && <Spinner animation="grow" className="ml-1" />}
+          <Row className="my-3">
+            <Col xs={12} lg>
+              <SmallLabel>Acquisition Cost</SmallLabel>
+              <StatsValue>{acquisitionCost.toLocaleString()} EUR</StatsValue>
             </Col>
-            <Col sm={12} lg={true}>
-              <div className="text-left text-md-right mt-3 mt-lg-0">
-                <NewTransactionModal submit={addTransaction} coins={coins} />{" "}
-                <Button
-                  size="sm"
-                  variant="outline-primary"
-                  onClick={() => setEdit((e) => !e)}
-                >
-                  Edit
-                </Button>{" "}
-                <Button
-                  onClick={fetchPrices}
-                  variant="outline-primary"
-                  size="sm"
-                >
-                  Update prices
-                </Button>
-              </div>
+            <Col xs={12} lg>
+              <SmallLabel>Profit/Loss</SmallLabel>
+              <StatsValue>{profit.toLocaleString()} EUR</StatsValue>
+            </Col>
+            <Col xs={12} lg>
+              <SmallLabel>Realized profit</SmallLabel>
+              <StatsValue>{takeProfit.toLocaleString()} EUR</StatsValue>
+            </Col>
+            <Col xs={12} lg className="text-left text-lg-right">
+              <SmallLabel>Current Holdings</SmallLabel>
+              <StatsValue
+                value={profitPercentage}
+                className="d-block d-lg-inline-block"
+              >
+                {value.toLocaleString()} EUR {profitPercentage.toFixed(2)} %
+              </StatsValue>
             </Col>
           </Row>
+          <hr />
+          {Object.entries(coins).map(([coinName, coin], i) => (
+            <Coin
+              key={i}
+              coin={coin}
+              price={prices[coinName] || 0}
+              edit={edit}
+              deleteTransactionCallback={deleteTransaction}
+            />
+          ))}
         </Container>
       </div>
-
-      <Container>
-        <Row className="my-3">
-          <Col xs={12} lg>
-            <SmallLabel>Acquisition Cost</SmallLabel>
-            <StatsValue>{acquisitionCost.toLocaleString()} EUR</StatsValue>
-          </Col>
-          <Col xs={12} lg>
-            <SmallLabel>Profit/Loss</SmallLabel>
-            <StatsValue>{profit.toLocaleString()} EUR</StatsValue>
-          </Col>
-          <Col xs={12} lg>
-            <SmallLabel>Realized profit</SmallLabel>
-            <StatsValue>{takeProfit.toLocaleString()} EUR</StatsValue>
-          </Col>
-          <Col xs={12} lg className="text-left text-lg-right">
-            <SmallLabel>Current Holdings</SmallLabel>
-            <StatsValue
-              value={profitPercentage}
-              className="d-block d-lg-inline-block"
-            >
-              {value.toLocaleString()} EUR {profitPercentage.toFixed(2)} %
-            </StatsValue>
-          </Col>
-        </Row>
-        <hr />
-        {Object.entries(coins).map(([coinName, coin], i) => (
-          <Coin
-            key={i}
-            coin={coin}
-            price={prices[coinName] || 0}
-            edit={edit}
-            deleteTransactionCallback={deleteTransaction}
+      <Footer className="text-center">
+        <Container>
+          <SmallLabel
+            className="d-inline-block"
+            style={{ textShadow: "2px 2px 4px #fff" }}
+          >
+            Data provided by
+          </SmallLabel>
+          <img
+            src={coinpaprikaLogo}
+            alt="Coinpaprika"
+            style={{ width: "100px" }}
           />
-        ))}
-      </Container>
+        </Container>
+      </Footer>
     </div>
   );
 }
