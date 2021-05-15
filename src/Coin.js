@@ -108,7 +108,7 @@ function Coin({
                         <Button
                           variant="outline-dark"
                           size="sm"
-                          className="ml-0 ml-lg-3 mr-lg-2"
+                          className="ml-2 ml-lg-2"
                           onClick={() =>
                             deleteTransactionCallback(transaction.id)
                           }
