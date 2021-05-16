@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
 import "./App.css";
 import Coin from "./Coin";
+import coinpaprikaLogo from "./img/cp_logo_hor.svg";
 import NewTransactionModal, {
   TYPE_BUY,
   TYPE_SELL,
 } from "./NewTransactionModal";
+import Pullable from "./Pullable";
 import { Footer, SmallLabel, StatsValue } from "./styles";
 import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
-import coinpaprikaLogo from "./img/cp_logo_hor.svg";
-import Pullable from "react-pullable";
 
 const STORAGE_KEY = "c15b977dd99332ca8623fbdfb86827e8";
 
