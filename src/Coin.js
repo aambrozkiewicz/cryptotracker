@@ -89,13 +89,12 @@ function Coin({
           <Row className="p-2 text-center">
             <Col>
               <NiceButton onClick={() => setOpenTransactions((t) => !t)}>
-                {openTransactions ? "Close" : "Open"} transactions &mdash;{" "}
-                {transactions.length}
+                {openTransactions ? "Hide" : "Show"} transactions
               </NiceButton>
             </Col>
           </Row>
           <div
-            className={`bg-white shadow rounded ${
+            className={`bg-white shadow rounded mt-2 ${
               openTransactions ? "d-block" : "d-none"
             }`}
           >

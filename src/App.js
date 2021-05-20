@@ -146,10 +146,7 @@ function App() {
               </Col>
               <Col sm={12} lg={true}>
                 <div className="text-left text-md-right mt-3 mt-lg-0">
-                  <NiceButton
-                    onClick={() => setTransactionModal(true)}
-                    className="ml-0"
-                  >
+                  <NiceButton onClick={() => setTransactionModal(true)}>
                     Add transaction
                   </NiceButton>
                   <TransacationModal
@@ -160,10 +157,13 @@ function App() {
                     coins={coins}
                     submit={addTransaction}
                   />
-                  <NiceButton onClick={() => setEdit((e) => !e)}>
+                  <NiceButton onClick={() => setEdit(!edit)} className="mx-2">
                     Edit
                   </NiceButton>
-                  <NiceButton onClick={fetchPrices} className="mr-0">
+                  <NiceButton
+                    onClick={fetchPrices}
+                    className="d-none d-lg-inline-block"
+                  >
                     Call API
                   </NiceButton>
                 </div>

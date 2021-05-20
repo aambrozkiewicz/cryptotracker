@@ -37,7 +37,6 @@ export const NiceButton = styled.button`
   padding: 5px 15px;
   background: #fff;
   color: #0b61ff;
-  margin: 4px;
   font-size: 0.875rem;
   transition: all 0.5s ease 0s;
 
