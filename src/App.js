@@ -1,15 +1,12 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Spinner } from "react-bootstrap";
+import { Col, Container, Row, Spinner } from "react-bootstrap";
 import "./App.css";
 import Coin from "./Coin";
 import coinpaprikaLogo from "./img/cp_logo_hor.svg";
-import NewTransactionModal, {
-  TYPE_BUY,
-  TYPE_SELL,
-} from "./NewTransactionModal";
+import TransacationModal, { TYPE_BUY, TYPE_SELL } from "./NewTransactionModal";
 import Pullable from "./Pullable";
-import { Footer, SmallLabel, StatsValue } from "./styles";
+import { Footer, NiceButton, SmallLabel, StatsValue } from "./styles";
 import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
 
 const STORAGE_KEY = "c15b977dd99332ca8623fbdfb86827e8";
@@ -86,6 +83,7 @@ function App() {
 
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [transactionModal, setTransactionModal] = useState(false);
 
   const coins = coinReducer(transactions);
   const { value, acquisitionCost, takeProfit } = statsReducer(coins, prices);
@@ -148,22 +146,26 @@ function App() {
               </Col>
               <Col sm={12} lg={true}>
                 <div className="text-left text-md-right mt-3 mt-lg-0">
-                  <NewTransactionModal submit={addTransaction} coins={coins} />{" "}
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    onClick={() => setEdit((e) => !e)}
+                  <NiceButton
+                    onClick={() => setTransactionModal(true)}
+                    className="ml-0"
                   >
+                    Add transaction
+                  </NiceButton>
+                  <TransacationModal
+                    show={transactionModal}
+                    onHide={() => setTransactionModal(false)}
+                    setShow={setTransactionModal}
+                    animation={false}
+                    coins={coins}
+                    submit={addTransaction}
+                  />
+                  <NiceButton onClick={() => setEdit((e) => !e)}>
                     Edit
-                  </Button>{" "}
-                  <Button
-                    onClick={fetchPrices}
-                    variant="outline-primary"
-                    size="sm"
-                    className="d-none d-lg-inline-block"
-                  >
-                    Update prices
-                  </Button>
+                  </NiceButton>
+                  <NiceButton onClick={fetchPrices} className="mr-0">
+                    Call API
+                  </NiceButton>
                 </div>
               </Col>
             </Row>

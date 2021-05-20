@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Button, Col, Collapse, Row } from "react-bootstrap";
 import { TYPE_BUY, TYPE_SELL } from "./NewTransactionModal";
-import { FunnyLogo, LargeText, SmallLabel, StatsValue } from "./styles";
+import {
+  FunnyLogo,
+  LargeText,
+  NiceButton,
+  SmallLabel,
+  StatsValue,
+} from "./styles";
 
 function Coin({
   coin: { name, acquisitionCost, hodl, transactions },
@@ -10,6 +16,7 @@ function Coin({
   deleteTransactionCallback,
 }) {
   const [open, setOpen] = useState(false);
+  const [openTransactions, setOpenTransactions] = useState(false);
 
   const value = price * hodl;
   const profit = value - acquisitionCost;
@@ -79,7 +86,19 @@ function Coin({
               <LargeText>{value.toLocaleString()} EUR</LargeText>
             </Col>
           </Row>
-          <div className="bg-white shadow rounded">
+          <Row className="p-2 text-center">
+            <Col>
+              <NiceButton onClick={() => setOpenTransactions((t) => !t)}>
+                {openTransactions ? "Close" : "Open"} transactions &mdash;{" "}
+                {transactions.length}
+              </NiceButton>
+            </Col>
+          </Row>
+          <div
+            className={`bg-white shadow rounded ${
+              openTransactions ? "d-block" : "d-none"
+            }`}
+          >
             {transactions.map((transaction, i) => (
               <div key={i} className="border-bottom p-2">
                 <Row className="align-items-center">

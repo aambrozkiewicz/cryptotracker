@@ -2,13 +2,6 @@ export function generateId() {
   return new Date().valueOf();
 }
 
-export const fetchBinance = async (pair = "BTCEUR") => {
-  const response = await fetch(
-    `https://api.binance.com/api/v1/ticker/price?symbol=${pair}`
-  );
-  return response.json();
-};
-
 export const COINPAPRIKA_COIN_ID = {
   BTC: "btc-bitcoin",
   ETH: "eth-ethereum",

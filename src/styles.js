@@ -30,3 +30,20 @@ export const Footer = styled.div`
   bottom: 0;
   width: 100%;
 `;
+
+export const NiceButton = styled.button`
+  border: 1px solid #0b61ff;
+  border-radius: 5px;
+  padding: 5px 15px;
+  background: #fff;
+  color: #0b61ff;
+  margin: 4px;
+  font-size: 0.875rem;
+  transition: all 0.5s ease 0s;
+
+  &:hover {
+    color: #fff;
+    background: #0b61ff;
+    /* box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); */
+  }
+`;
