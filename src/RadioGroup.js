@@ -7,7 +7,7 @@ function RadioGroup({ onChange, options, value, ...props }) {
         <Button
           key={i}
           variant={option === value ? "primary" : "light"}
-          onClick={(e) => onChange(option)}
+          onClick={() => onChange(option)}
         >
           {option}
         </Button>
