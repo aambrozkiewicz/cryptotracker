@@ -5,7 +5,6 @@ import "./App.css";
 import Coin from "./Coin";
 import coinpaprikaLogo from "./img/cp_logo_hor.svg";
 import TransacationModal, { TYPE_BUY, TYPE_SELL } from "./NewTransactionModal";
-import Pullable from "./Pullable";
 import { Footer, NiceButton, SmallLabel, StatsValue } from "./styles";
 import {
   COINPAPRIKA_COIN_ID,
@@ -150,12 +149,7 @@ function App() {
             <Row>
               <Col>
                 <h2 className="header m-0 d-inline-block">Portfolio</h2>
-                {loading && (
-                  <Spinner
-                    animation="grow"
-                    className="ml-3 d-none d-lg-inline-block"
-                  />
-                )}
+                {loading && <Spinner animation="grow" className="ml-3" />}
               </Col>
               <Col sm={12} lg={true}>
                 <div className="text-left text-md-right mt-3 mt-lg-0">
@@ -173,57 +167,50 @@ function App() {
                   <NiceButton onClick={() => setEdit(!edit)} className="mx-2">
                     Edit
                   </NiceButton>
-                  <NiceButton
-                    onClick={fetchPrices}
-                    className="d-none d-lg-inline-block"
-                  >
-                    Call API
-                  </NiceButton>
+                  <NiceButton onClick={fetchPrices}>Call API</NiceButton>
                 </div>
               </Col>
             </Row>
           </Container>
         </div>
 
-        <Pullable onRefresh={fetchPrices}>
-          <Container>
-            <Row className="my-3">
-              <Col xs={12} lg>
-                <SmallLabel>Acquisition Cost</SmallLabel>
-                <StatsValue>{acquisitionCost.toLocaleString()} EUR</StatsValue>
-              </Col>
-              <Col xs={12} lg>
-                <SmallLabel>Current Holdings</SmallLabel>
-                <StatsValue>{value.toLocaleString()} EUR</StatsValue>
-              </Col>
-              <Col xs={12} lg>
-                <SmallLabel>Realized profit</SmallLabel>
-                <StatsValue>{takeProfit.toLocaleString()} EUR</StatsValue>
-              </Col>
-              <Col xs={12} lg className="text-left text-lg-right">
-                <SmallLabel>Profit/Loss</SmallLabel>
-                <StatsValue value={profitPercentage}>
-                  {profit.toLocaleString()} EUR {profitPercentage.toFixed(2)} %
-                </StatsValue>
-              </Col>
-            </Row>
-            <hr />
-            {Object.entries(coins).map(([coinName, coin], i) => (
-              <Coin
-                key={i}
-                coin={coin}
-                price={prices[coinName] || 0}
-                edit={edit}
-                deleteTransactionCallback={deleteTransaction}
-              />
-            ))}
-            <div className="text-center mt-3">
-              <small className="text-muted">
-                last updated {timeSince(fetchSince)}
-              </small>
-            </div>
-          </Container>
-        </Pullable>
+        <Container>
+          <Row className="my-3">
+            <Col xs={12} lg>
+              <SmallLabel>Acquisition Cost</SmallLabel>
+              <StatsValue>{acquisitionCost.toLocaleString()} EUR</StatsValue>
+            </Col>
+            <Col xs={12} lg>
+              <SmallLabel>Current Holdings</SmallLabel>
+              <StatsValue>{value.toLocaleString()} EUR</StatsValue>
+            </Col>
+            <Col xs={12} lg>
+              <SmallLabel>Realized profit</SmallLabel>
+              <StatsValue>{takeProfit.toLocaleString()} EUR</StatsValue>
+            </Col>
+            <Col xs={12} lg className="text-left text-lg-right">
+              <SmallLabel>Profit/Loss</SmallLabel>
+              <StatsValue value={profitPercentage}>
+                {profit.toLocaleString()} EUR {profitPercentage.toFixed(2)} %
+              </StatsValue>
+            </Col>
+          </Row>
+          <hr />
+          {Object.entries(coins).map(([coinName, coin], i) => (
+            <Coin
+              key={i}
+              coin={coin}
+              price={prices[coinName] || 0}
+              edit={edit}
+              deleteTransactionCallback={deleteTransaction}
+            />
+          ))}
+          <div className="text-center mt-3">
+            <small className="text-muted">
+              last updated {timeSince(fetchSince)}
+            </small>
+          </div>
+        </Container>
       </div>
 
       <Footer className="text-center">
