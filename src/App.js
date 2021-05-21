@@ -7,7 +7,12 @@ import coinpaprikaLogo from "./img/cp_logo_hor.svg";
 import TransacationModal, { TYPE_BUY, TYPE_SELL } from "./NewTransactionModal";
 import Pullable from "./Pullable";
 import { Footer, NiceButton, SmallLabel, StatsValue } from "./styles";
-import { COINPAPRIKA_COIN_ID, fetchCoinpaprika, generateId } from "./utils";
+import {
+  COINPAPRIKA_COIN_ID,
+  fetchCoinpaprika,
+  generateId,
+  timeSince,
+} from "./utils";
 
 const STORAGE_KEY = "c15b977dd99332ca8623fbdfb86827e8";
 
@@ -84,6 +89,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [edit, setEdit] = useState(false);
   const [transactionModal, setTransactionModal] = useState(false);
+  const [fetchSince, setFetchSince] = useState(0);
 
   const coins = coinReducer(transactions);
   const { value, acquisitionCost, takeProfit } = statsReducer(coins, prices);
@@ -102,6 +108,7 @@ function App() {
       }));
     }
     setLoading(false);
+    setFetchSince(0);
   }
 
   useEffect(() => {
@@ -109,6 +116,12 @@ function App() {
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const interval = setInterval(() => setFetchSince((last) => last + 1), 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   function addTransaction(transaction) {
     setTransactions([
@@ -140,7 +153,7 @@ function App() {
                 {loading && (
                   <Spinner
                     animation="grow"
-                    className="ml-1 d-none d-lg-inline-block"
+                    className="ml-3 d-none d-lg-inline-block"
                   />
                 )}
               </Col>
@@ -204,6 +217,11 @@ function App() {
                 deleteTransactionCallback={deleteTransaction}
               />
             ))}
+            <div className="text-center mt-3">
+              <small className="text-muted">
+                last updated {timeSince(fetchSince)}
+              </small>
+            </div>
           </Container>
         </Pullable>
       </div>

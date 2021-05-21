@@ -40,9 +40,10 @@ export const NiceButton = styled.button`
   font-size: 0.875rem;
   transition: all 0.5s ease 0s;
 
-  &:hover {
-    color: #fff;
-    background: #0b61ff;
-    /* box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); */
+  @media (hover: hover) {
+    &:hover {
+      color: #fff;
+      background: #0b61ff;
+    }
   }
 `;
